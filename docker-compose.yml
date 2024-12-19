@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # Frontend service
+  front-end:
+    build:
+      context: ./front-end         # Directory containing the Dockerfile for the frontend
+      dockerfile: Dockerfile       # Dockerfile to build the frontend image
+    container_name: front-end      # Name of the frontend container
+    ports:
+      - "5173:5173"                # Map port 5173 on the host to port 5173 on the container
+    volumes:
+      - ./front-end:/app           # Mount the frontend directory to /app in the container
+      - /app/node_modules          # Mount node_modules to avoid re-installing dependencies
+    depends_on:
+      - auth-service               # Start auth-service before the frontend
+    environment:
+      - VITE_API_URL=http://localhost:3000  # API URL for the frontend to connect to the backend
+    networks:
+      - mern-network               # Connect to the mern-network
+
+  # Backend authentication service
+  auth-service:
+    build:
+      context: ./auth-service      # Directory containing the Dockerfile for the backend
+      dockerfile: Dockerfile       # Dockerfile to build the backend image
+    container_name: auth-service   # Name of the backend container
+    restart: always                # Always restart the container on failure
+    ports:
+      - "3000:3000"                # Map port 3000 on the host to port 3000 on the container
+    depends_on:
+      - mongo                      # Start mongo before the backend service
+    environment:
+      - MONGODB_URI=${MONGODB_URI} # MongoDB connection URI
+      - JWT_SECRET=${JWT_SECRET}   # JWT secret for signing tokens
+    volumes:
+      - ./auth-service:/usr/src/app # Mount the backend directory to /usr/src/app in the container
+      - /usr/src/app/node_modules  # Mount node_modules to avoid re-installing dependencies
+    networks:
+      - mern-network               # Connect to the mern-network
+
+  # MongoDB service
+  mongo:
+    image: mongo:latest            # Use the latest MongoDB image
+    container_name: mongo          # Name of the MongoDB container
+    restart: always                # Always restart the container on failure
+    ports:
+      - "27017:27017"              # Map port 27017 on the host to port 27017 on the container
+    volumes:
+      - mongodb_data:/data/db      # Persist MongoDB data in a named volume
+    networks:
+      - mern-network               # Connect to the mern-network
+    command: mongod --quiet --logpath /dev/null # Run MongoDB with specified options
+
+volumes:
+  mongodb_data:
+    driver: local                  # Use local driver for MongoDB data volume
+
+# Network configuration
+networks:
+  mern-network:                    # Create a custom bridge network
+    driver: bridge                 # Use bridge driver for local development
+
+
+
+
+
