@@ -7,16 +7,26 @@ const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
-    unique: true
+    minlength: 3,
+    maxlength: 30,
   },
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    validate: {
+      validator: function(v) {
+        return v && v.length > 6;
+      },
+      message: 'Email cannot be empty'
+    }
+
   },
   password: {
     type: String,
-    required: true
+    required: true,
+    minlength: 8,
+    maxlength: 30,
   }
 }, { timestamps: true }); // Add timestamps for createdAt and updatedAt fields
 

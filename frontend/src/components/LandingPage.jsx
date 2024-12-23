@@ -1,11 +1,11 @@
 import React from 'react';
-import Navbar from './Navbar';
+import Header from './Header';
 import HeroSection from './HeroSection';
 
 const LandingPage = () => {
   return (
     <div className="min-h-screen">
-      <Navbar />
+      <Header />
       <HeroSection />
     </div>
   );

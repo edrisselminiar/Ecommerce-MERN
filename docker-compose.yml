@@ -2,15 +2,15 @@ version: '3.8'
 
 services:
   # Frontend service
-  front-end:
+  frontend:
     build:
-      context: ./front-end         # Directory containing the Dockerfile for the frontend
+      context: ./frontend         # Directory containing the Dockerfile for the frontend
       dockerfile: Dockerfile       # Dockerfile to build the frontend image
-    container_name: front-end      # Name of the frontend container
+    container_name: frontend      # Name of the frontend container
     ports:
       - "5173:5173"                # Map port 5173 on the host to port 5173 on the container
     volumes:
-      - ./front-end:/app           # Mount the frontend directory to /app in the container
+      - ./frontend:/app           # Mount the frontend directory to /app in the container
       - /app/node_modules          # Mount node_modules to avoid re-installing dependencies
     depends_on:
       - auth-service               # Start auth-service before the frontend
