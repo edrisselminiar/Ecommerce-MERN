@@ -13,9 +13,11 @@ services:
       - ./frontend:/app           # Mount the frontend directory to /app in the container
       - /app/node_modules          # Mount node_modules to avoid re-installing dependencies
     depends_on:
-      - auth-service               # Start auth-service before the frontend
+      - auth-service  
+      - product-service             # Start auth-service before the frontend
     environment:
-      - VITE_API_URL=http://localhost:3000  # API URL for the frontend to connect to the backend
+      - VITE_AUTH_API_URL=http://localhost:3000  # API URL for the frontend to connect to the backend
+      - VITE_PRODUCT_API_URL=http://localhost:3001  # API URL for the frontend to connect to the backend
     networks:
       - mern-network               # Connect to the mern-network
 
@@ -31,13 +33,36 @@ services:
     depends_on:
       - mongo                      # Start mongo before the backend service
     environment:
-      - MONGODB_URI=${MONGODB_URI} # MongoDB connection URI
+      - AUTH_MONGODB_URI=${AUTH_MONGODB_URI} # MongoDB connection URI
       - JWT_SECRET=${JWT_SECRET}   # JWT secret for signing tokens
     volumes:
       - ./auth-service:/usr/src/app # Mount the backend directory to /usr/src/app in the container
       - /usr/src/app/node_modules  # Mount node_modules to avoid re-installing dependencies
     networks:
       - mern-network               # Connect to the mern-network
+  
+
+   # product mecroservice authentication service
+  product-service:
+    build:
+      context: ./product-service      # Directory containing the Dockerfile for the backend
+      dockerfile: Dockerfile       # Dockerfile to build the backend image
+    container_name: product-service   # Name of the backend container
+    restart: always                # Always restart the container on failure
+    ports:
+      - "3001:3001"                # Map port 3000 on the host to port 3000 on the container
+    depends_on:
+      - mongo                      # Start mongo before the backend service
+    environment:
+      - PRODUCT_MONGODB_URI=${PRODUCT_MONGODB_URI} # MongoDB connection URI
+      - JWT_SECRET=${JWT_SECRET}  # JWT secret for signing tokens
+      - PRODUCT_SERVICE_PORT=3001 
+    volumes:
+      - ./product-service:/usr/src/app # Mount the backend directory to /usr/src/app in the container
+      - /usr/src/app/node_modules  # Mount node_modules to avoid re-installing dependencies
+    networks:
+      - mern-network               # Connect to the mern-network
+
 
   # MongoDB service
   mongo:
