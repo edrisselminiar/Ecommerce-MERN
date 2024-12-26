@@ -1,12 +1,14 @@
 import React from 'react';
 import Header from './Header';
-import HeroSection from './HeroSection';
+import HeroProductSliderr from './HeroProductSliderr';
+// import ProductSliderr from './HeroProductSliderr';
+import HeroProductSlider from './HeroProductSlider';
 
 const LandingPage = () => {
   return (
     <div className="min-h-screen">
       <Header />
-      <HeroSection />
+      <HeroProductSlider />
     </div>
   );
 };

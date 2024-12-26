@@ -16,6 +16,15 @@ const buildSearchQuery = (searchTerm) => {
   };
 };
 
+
+
+
+
+
+
+
+
+
 // Helper function for price filter
 const buildPriceFilter = (minPrice, maxPrice) => {
   let priceFilter = {};
@@ -153,6 +162,83 @@ const productController = {
       res.status(500).json({ 
         message: 'Error searching products',
         error: error.message 
+      });
+    }
+  },
+
+
+  async getLandingPageLaptops(req, res) {
+    try {
+      const products = await Product.find({
+        onlyOnLandingPage: true,
+        type: "Laptops",
+        // hidden: false,
+      })
+      .limit(11)
+      .sort({ createdAt: -1 });
+
+      res.json(products);
+    } catch (error) {
+      res.status(500).json({
+        message: 'Error fetching landing page laptops',
+        error: error.message
+      });
+    }
+  },
+
+  async getLandingPageDesktops(req, res) {
+    try {
+      const products = await Product.find({
+        onlyOnLandingPage: true,
+        type: "Desktops",
+        hidden: false,
+      })
+      .limit(11)
+      .sort({ createdAt: -1 });
+
+      res.json(products);
+    } catch (error) {
+      res.status(500).json({
+        message: 'Error fetching landing page desktops', 
+        error: error.message
+      });
+    }
+  },
+
+  async getLandingPagePeripherals(req, res) {
+    try {
+      const products = await Product.find({
+        onlyOnLandingPage: true,
+        type: "Peripherals",
+        hidden: false,
+      })
+      .limit(11)
+      .sort({ createdAt: -1 });
+
+      res.json(products);
+    } catch (error) {
+      res.status(500).json({
+        message: 'Error fetching landing page peripherals',
+        error: error.message
+      });
+    }
+  },
+
+  async getLandingPageComponents(req, res) {
+    try {
+      const products = await Product.find({
+        onlyOnLandingPage: true,
+        type: "Components",
+        hidden: false,
+      })
+      .limit(11)
+      .sort({ createdAt: -1 });
+
+      res.json(products);
+    } catch (error) {
+      res.status(500).json({
+        message: 'Error fetching landing page components', // Fixed error message
+        error: error.message
       });
     }
   }
