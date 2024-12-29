@@ -39,7 +39,7 @@ const LoginForm = () => {
         
         if (response.ok) {
           localStorage.setItem('token', data.token);
-          navigate('/dashboard');
+          navigate('/');
         } else {
           setError(data.message || 'Login failed');
         }

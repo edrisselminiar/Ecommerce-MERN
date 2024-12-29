@@ -1,9 +1,12 @@
+
 // Import mongoose and bcrypt modules
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 // Define the user schema with fields and validation rules
 const userSchema = new mongoose.Schema({
+
+  // update shima ___________
   username: {
     type: String,
     required: true,
@@ -11,17 +14,30 @@ const userSchema = new mongoose.Schema({
     maxlength: 30,
   },
   email: {
-    type: String,
-    required: true,
-    unique: true,
-    validate: {
-      validator: function(v) {
-        return v && v.length > 6;
+        type: String,
+        required: [true, 'Email is required'],
+        unique: true,
+        trim: true,
+        lowercase: true,
+        validate: {
+          validator: function(v) {
+            return /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(v);
+          },
+          message: 'Please enter a valid email address'
+        }
       },
-      message: 'Email cannot be empty'
-    }
+  // email: {
+  //   type: String,
+  //   required: true,
+  //   unique: true,
+  //   validate: {
+  //     validator: function(v) {
+  //       return v && v.length > 6;
+  //     },
+  //     message: 'Email cannot be empty'
+  //   }
 
-  },
+  // },
   password: {
     type: String,
     required: true,

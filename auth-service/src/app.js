@@ -8,6 +8,7 @@ const cors = require('cors');
 const connectDB = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
 
+
 // Create an Express application
 const app = express();
 
@@ -25,6 +26,8 @@ connectDB();
 
 // Set up authentication routes
 app.use('/api/auth', authRoutes);
+
+
 
 // Start the server
 const PORT = process.env.PORT || 3000;

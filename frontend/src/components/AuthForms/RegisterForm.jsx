@@ -39,7 +39,7 @@ const RegisterForm = () => {
       const data = await response.json();
       
       if (response.ok) {
-        navigate('/login');
+        navigate('/');
       } else {
         setError(data.message || 'Registration failed');
       }
