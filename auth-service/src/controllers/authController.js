@@ -34,7 +34,7 @@ class AuthController {
   async getAllUsers(req, res) {
     try {
       const users = await User.find()
-        .select('-password') // Exclude password from results
+        //.select('-password') // Exclude password from results
         .sort({ createdAt: -1 }); // Sort by newest first
 
       res.status(200).json({

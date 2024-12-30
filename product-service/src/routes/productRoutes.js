@@ -7,22 +7,29 @@ router.get('/landing/desktops', productController.getLandingPageDesktops);
 router.get('/landing/peripherals', productController.getLandingPagePeripherals);
 router.get('/landing/components', productController.getLandingPageComponents);
 
+
+//start_Give admin the right to some root users
+const verifyAdmin = require('../middleware/verifyAdmin');
 // Create new product
-router.post('/', productController.createProduct);
+router.post('/',verifyAdmin, productController.createProduct);
 
 // Get all products with optional filters
-router.get('/', productController.getProducts);
+router.get('/',verifyAdmin, productController.getProducts);
 
 // Search products
-router.get('/search', productController.searchProducts);
+router.get('/search',verifyAdmin, productController.searchProducts);
 
 // Get single product
-router.get('/:id', productController.getProductById);
+router.get('/:id',verifyAdmin, productController.getProductById);
 
 // Update product
-router.put('/:id', productController.updateProduct);
+router.put('/:id',verifyAdmin, productController.updateProduct);
 
 // Delete product
-router.delete('/:id', productController.deleteProduct);
+router.delete('/:id',verifyAdmin, productController.deleteProduct);
+//END_Give admin the right to some root users
+
+
+
 
 module.exports = router;

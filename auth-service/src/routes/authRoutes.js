@@ -2,7 +2,16 @@
 const express = require('express');
 const router = express.Router();
 const AuthController = require('../controllers/authController');
-const authMiddleware = require('../middleware/auth');
+
+//start_Give admin the right to some root users
+const verifyAdmin = require('../middleware/verifyAdmin');
+router.get('/users',verifyAdmin, AuthController.getAllUsers);
+router.get('/users/:id',verifyAdmin, AuthController.getUser);
+router.put('/users/:id',verifyAdmin, AuthController.updateUser);
+router.delete('/users/:id',verifyAdmin, AuthController.deleteUser);
+//END_Give admin the right to some root users
+
+
 
 // Defines routes for registering and logging in users.
 router.post('/register', AuthController.register);
@@ -11,11 +20,6 @@ router.post('/register', AuthController.register);
 router.post('/login', AuthController.login);
 
 
-// router.get('/users', authMiddleware, AuthController.getAllUsers);
-router.get('/users', AuthController.getAllUsers);
-router.get('/users/:id', AuthController.getUser);
-router.put('/users/:id', AuthController.updateUser);
-router.delete('/users/:id', AuthController.deleteUser);
 
 
 

@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
+// const adminAuth = require('../middleware/adminAuth');
+
 
 const app = express();
 
@@ -20,7 +22,7 @@ app.use(express.json());
 connectDB();
 
 // Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/admin', authRoutes);//admin/auth
 
 // Start the server
 const PORT = process.env.AUTH_ADMIN_MONGODB_PORT || 3002;
