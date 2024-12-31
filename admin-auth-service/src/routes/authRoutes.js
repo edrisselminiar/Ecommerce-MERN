@@ -50,6 +50,7 @@ router.post('/login', async (req, res) => {
 // router.delete('/users/:id', adminAuth, proxy('http://localhost:3000', proxyConfig));
 //--> END_Give admin the right to some root users(get_put_delet)_if want to use url3002
 
+
 //start_Give admin the right to some root users(get_put_delet)_if want to use url3000
 //thid rout use in MECROSERVICE auth-service (middlwire/verifyAdmin.js)
 router.get('/verify', adminAuth, (req, res) => {

@@ -1,8 +1,6 @@
 import React from 'react';
-import Header from './Header';
-import HeroProductSliderr from './HeroProductSliderr';
-// import ProductSliderr from './HeroProductSliderr';
-import HeroProductSlider from './HeroProductSlider';
+import Header from '../components/layout/Header';
+import HeroProductSlider from '../components/landingpage/HeroProductSlider';
 
 const LandingPage = () => {
   return (

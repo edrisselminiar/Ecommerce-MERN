@@ -53,7 +53,7 @@ class AuthController {
   // New method to update user
   async updateUser(req, res) {
     try {
-      const { username, email } = req.body;
+      const { fullname, email } = req.body;
       const userId = req.params.id;
 
       // Check if user exists
@@ -81,7 +81,7 @@ class AuthController {
         userId,
         {
           $set: {
-            username: username || user.username,
+            fullname: fullname || user.fullname,
             email: email || user.email
           }
         },

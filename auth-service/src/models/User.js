@@ -7,9 +7,10 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
 
   // update shima ___________
-  username: {
+  fullname: {
     type: String,
     required: true,
+    trim: true,
     minlength: 3,
     maxlength: 30,
   },

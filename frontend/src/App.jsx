@@ -1,12 +1,16 @@
 import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { LoginForm } from './components/AuthForms/LoginForm';
-import { RegisterForm } from './components/AuthForms/RegisterForm';
-import LandingPage from './components/LandingPage';
+import { LoginForm } from './pages/AuthForms/LoginForm';
+import { RegisterForm } from './pages/AuthForms/RegisterForm';
+import LandingPage from './pages/LandingPage';
+//START for admin
+import { AdminLoginForm } from './pages/AuthAdminForms/AdminLoginForm';
+import Dashboard from './pages/Dashboard';
+import ProtectedRoute from './components/authadmin/ProtectedRoute';
+//END for admin
 
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <>
@@ -18,6 +22,16 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterForm />} />
+        <Route path="/admin/login" element={<AdminLoginForm />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        
       </Routes>
     </Router>
 
