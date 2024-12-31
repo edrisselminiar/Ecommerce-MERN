@@ -13,11 +13,13 @@ services:
       - ./frontend:/app           # Mount the frontend directory to /app in the container
       - /app/node_modules          # Mount node_modules to avoid re-installing dependencies
     depends_on:
-      - auth-service  
-      - product-service             # Start auth-service before the frontend
+      - auth-service                  # Start auth-service before the frontend
+      - product-service               # Start product-service before the frontend
+      - admin-auth-service          # Start adminAuth-service before the frontend
     environment:
       - VITE_AUTH_API_URL=http://localhost:3000  # API URL for the frontend to connect to the backend
-      - VITE_PRODUCT_API_URL=http://localhost:3001  # API URL for the frontend to connect to the backend
+      - VITE_PRODUCT_API_URL=http://localhost:3001 
+      - VITE_ADMINAUTH_API_URL=http://localhost:3002 # API URL for the frontend to connect to the backend
     networks:
       - mern-network               # Connect to the mern-network
 
@@ -62,6 +64,29 @@ services:
       - /usr/src/app/node_modules  # Mount node_modules to avoid re-installing dependencies
     networks:
       - mern-network               # Connect to the mern-network
+
+
+
+  # Backend authentication service
+  admin-auth-service:
+    build:
+      context: ./admin-auth-service      # Directory containing the Dockerfile for the backend
+      dockerfile: Dockerfile       # Dockerfile to build the backend image
+    container_name: admin-auth-service   # Name of the backend container
+    restart: always                # Always restart the container on failure
+    ports:
+      - "3002:3002"                # Map port 3000 on the host to port 3000 on the container
+    depends_on:
+      - mongo                      # Start mongo before the backend service
+    environment:
+      - AUTH_ADMIN_MONGODB_URI=${AUTH_ADMIN_MONGODB_URI} # MongoDB connection URI
+      - JWT_SECRET=${JWT_SECRET}   # JWT secret for signing tokens
+    volumes:
+      - ./admin-auth-service:/usr/src/app # Mount the backend directory to /usr/src/app in the container
+      - /usr/src/app/node_modules  # Mount node_modules to avoid re-installing dependencies
+    networks:
+      - mern-network               # Connect to the mern-network
+  
 
 
   # MongoDB service
