@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { LoginForm } from './pages/AuthForms/LoginForm';
 import { RegisterForm } from './pages/AuthForms/RegisterForm';
 import LandingPage from './pages/LandingPage';
@@ -13,29 +13,29 @@ import ProtectedRoute from './components/authadmin/ProtectedRoute';
 function App() {
 
   return (
-    <>
+   
 
   
 
-    <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginForm />} />
-        <Route path="/register" element={<RegisterForm />} />
-        <Route path="/admin/login" element={<AdminLoginForm />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        
-      </Routes>
-    </Router>
+    <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<LoginForm />} />
+      <Route path="/register" element={<RegisterForm />} />
+      <Route path="/admin/login" element={<AdminLoginForm />} />
+      <Route
+        path="/dashboard/*"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
 
-    </>
+    </Routes>
+  </BrowserRouter>
+
+   
   )
 }
 
