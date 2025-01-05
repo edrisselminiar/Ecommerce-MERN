@@ -1,86 +1,172 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { 
-  Eye, Edit2, Trash2, Plus, Search, Filter,
-  ChevronDown, ChevronLeft, ChevronRight
+  Eye, Edit2, Trash2, Plus, Search,
+  ChevronLeft, ChevronRight
 } from 'lucide-react';
 
 const ProductsTable = () => {
-  const [products] = useState([
-    {
-      id: 1,
-      description: "Gaming Laptop XPS 15",
-      type: "Electronics",
-      onlyOnLandingPage: true,
-      price: 1299.99,
-      discounts: true,
-      Marke: "Dell",
-      garantie: "2 years",
-      hidden: false,
-      stock: 50
-    },
-    // Add more sample products as needed
-  ]);
-
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const navigate = useNavigate();
 
-  const handleView = (product) => {
-    console.log('Viewing product:', product);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalProducts, setTotalProducts] = useState(0);
+
+  // Get auth token function
+  const getAuthToken = () => {
+    return localStorage.getItem('token'); // or however you store your token
   };
 
-  const handleEdit = (product) => {
-    console.log('Editing product:', product);
+  useEffect(() => {
+    fetchProducts();
+  }, [currentPage, searchTerm]);
+
+  const fetchProducts = async () => {
+    try {
+      const token = getAuthToken();
+      const response = await fetch(
+        `http://localhost:3001/api/products?page=${currentPage}&limit=10${
+          searchTerm ? `&search=${searchTerm}` : ''
+        }`
+        ,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      if (response.status === 401) {
+        throw new Error('Unauthorized: Please log in as admin');
+      }
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch products');
+      }
+      
+      const data = await response.json();
+      console.log('API Response:', data);
+      
+      setProducts(data.products);
+      setTotalPages(data.totalPages);
+      setCurrentPage(Number(data.currentPage));
+      setTotalProducts(data.totalProducts);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      setError(err.message);
+      setLoading(false);
+      
+      // Redirect to login if unauthorized
+      if (err.message.includes('Unauthorized')) {
+        navigate('/admin/login'); // Adjust the route as needed
+      }
+    }
   };
 
-  const handleDelete = (product) => {
-    console.log('Deleting product:', product);
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
   };
 
-  const filteredProducts = products.filter(product =>
-    product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.type.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      try {
+        const token = getAuthToken();
+        const response = await fetch(`http://localhost:3001/api/products/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.status === 401) {
+          throw new Error('Unauthorized: Please log in as admin');
+        }
+        
+        if (response.ok) {
+          fetchProducts();
+        } else {
+          throw new Error('Failed to delete product');
+        }
+      } catch (err) {
+        console.error('Error deleting product:', err);
+        setError(err.message);
+        
+        // Redirect to login if unauthorized
+        if (err.message.includes('Unauthorized')) {
+          navigate('/admin/login'); // Adjust the route as needed
+        }
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 text-red-500 bg-red-50 rounded-md">
+        <p>Error: {error}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
+    <div className="p-6 bg-white rounded-lg shadow-lg">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <h2 className="text-2xl font-semibold text-gray-800">Products Management</h2>
+        <h1 className="text-2xl font-bold text-gray-800">Products Management</h1>
         
-        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-          {/* Search Bar */}
-          <div className="relative flex-grow sm:max-w-xs">
+        <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+          {/* Search Input */}
+          <div className="relative w-full md:w-64">
             <input
               type="text"
               placeholder="Search products..."
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearch}
             />
-            <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
           </div>
 
+
+
+          
           {/* Add Product Button */}
+          
           <button
-            onClick={() => setShowAddModal(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+            onClick={() => navigate('/dashboard/products/add')}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
           >
-            <Plus size={20} />
-            <span>Add Product</span>
+            <Plus className="w-5 h-5 mr-2" /> Add Product
           </button>
         </div>
       </div>
 
-      {/* Table Section */}
+      {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
+        <table className="min-w-full bg-white rounded-lg">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
@@ -88,56 +174,74 @@ const ProductsTable = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Landing Page</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discounts</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Garantie</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {currentItems.map((product) => (
-              <tr key={product.id} className="hover:bg-gray-50">
+          <tbody className="divide-y divide-gray-200">
+            {products.map((product) => (
+              <tr key={product._id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">{product.description}</div>
-                  <div className="text-sm text-gray-500">{product.Marke}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{product.type}</div>
+                  <div className="text-sm text-gray-500">{product.type}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    ${product.price.toFixed(2)}
-                    {product.discounts && (
-                      <span className="ml-2 px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
-                        Discount
-                      </span>
-                    )}
-                  </div>
+                  <div className="text-sm text-gray-900">${product.price.toFixed(2)}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className={`text-sm ${product.stock < 10 ? 'text-red-600' : 'text-gray-900'}`}>
-                    {product.stock} units
-                  </div>
+                  <div className="text-sm text-gray-900">{product.stock}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                    ${product.hidden ? 'bg-gray-100 text-gray-800' : 'bg-green-100 text-green-800'}`}>
+                  <span className={`px-2 py-1 text-xs rounded-full ${
+                    product.hidden
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-green-100 text-green-800'
+                  }`}>
                     {product.hidden ? 'Hidden' : 'Visible'}
                   </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={`px-2 py-1 text-xs rounded-full ${
+                    product.onlyOnLandingPage
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
+                  }`}>
+                    {product.onlyOnLandingPage ? 'Visible' : 'Hidden'}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={`px-2 py-1 text-xs rounded-full ${
+                    product.discounts
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
+                  }`}>
+                    {product.discounts ? 'Visible' : 'Hidden'}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-900">{product.garantie}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex space-x-2">
                     <button
-                      onClick={() => handleView(product)}
+                      onClick={() => navigate(`/dashboard/products/${product._id}`)} 
                       className="text-blue-600 hover:text-blue-900"
                     >
                       <Eye size={20} />
                     </button>
+                   
                     <button
-                      onClick={() => handleEdit(product)}
-                      className="text-yellow-600 hover:text-yellow-900"
+                      onClick={() => navigate(`/dashboard/products/edit/${product._id}`)}
+                      className="inline-flex items-center px-3 py-2 text-yellow-600 hover:text-yellow-900 transition-colors"
                     >
-                      <Edit2 size={20} />
+                      <Edit2 className="w-5 h-5" />
                     </button>
                     <button
-                      onClick={() => handleDelete(product)}
+                      onClick={() => handleDelete(product._id)}
                       className="text-red-600 hover:text-red-900"
                     >
                       <Trash2 size={20} />
@@ -150,26 +254,49 @@ const ProductsTable = () => {
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex items-center justify-between mt-6">
+      {/* Pagination Controls */}
+      <div className="mt-4 flex items-center justify-between px-4">
         <div className="text-sm text-gray-700">
-          Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredProducts.length)} of{' '}
-          {filteredProducts.length} entries
+          Showing {((currentPage - 1) * 10) + 1} to {Math.min(currentPage * 10, totalProducts)} of {totalProducts} products
         </div>
-        <div className="flex space-x-2">
+        <div className="flex items-center space-x-2">
           <button
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
+            className={`p-2 rounded-md ${
+              currentPage === 1
+                ? 'text-gray-400 cursor-not-allowed'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
           >
             <ChevronLeft size={20} />
           </button>
+          
+          {/* Page Numbers */}
+          <div className="flex space-x-1">
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index + 1}
+                onClick={() => handlePageChange(index + 1)}
+                className={`px-3 py-1 rounded-md ${
+                  currentPage === index + 1
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
+
           <button
-            onClick={() => setCurrentPage(prev => 
-              Math.min(prev + 1, Math.ceil(filteredProducts.length / itemsPerPage))
-            )}
-            disabled={currentPage >= Math.ceil(filteredProducts.length / itemsPerPage)}
-            className="px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`p-2 rounded-md ${
+              currentPage === totalPages
+                ? 'text-gray-400 cursor-not-allowed'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
           >
             <ChevronRight size={20} />
           </button>
@@ -180,3 +307,8 @@ const ProductsTable = () => {
 };
 
 export default ProductsTable;
+
+
+
+
+

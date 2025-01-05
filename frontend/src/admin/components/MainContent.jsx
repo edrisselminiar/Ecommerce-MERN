@@ -2,6 +2,10 @@ import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProductsTable from './../pages/ProductsTable';
 import UsersTable from './../pages/UsersTable';
+import ProductDetails from './ProductDetails';
+import ProductEditForm from './ProductEditForm';
+import AddProductForm from './AddProductForm';
+
 
 export default function MainContent() {
   return (
@@ -11,6 +15,10 @@ export default function MainContent() {
   
         <Route path="/" element={<ProductsTable />} />
         <Route path="/products" element={<ProductsTable />} />
+        <Route path="/products/:id" element={<ProductDetails />} />
+        <Route path="/products/edit/:id" element={<ProductEditForm />} />
+        <Route path="/products/add" element={<AddProductForm />} />
+
         <Route path="/users" element={<UsersTable />} />
 
     </Routes>
