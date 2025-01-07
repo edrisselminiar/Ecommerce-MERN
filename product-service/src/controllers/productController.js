@@ -1,4 +1,6 @@
 const Product = require('../models/Product');
+const multer = require('multer');
+const path = require('path');
 
 // Helper function for search queries
 const buildSearchQuery = (searchTerm) => {
@@ -62,7 +64,76 @@ const buildPriceFilter = (minPrice, maxPrice) => {
 
 
 
+  // Configure multer storage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/images/products/');
+  },
+  filename: (req, file, cb) => {
+    if (!req.body.fileName) {
+      const timestamp = Date.now();
+      const fileName = `${timestamp}_${file.originalname.replace(/\s+/g, '_')}`;
+      cb(null, fileName);
+    } else {
+      cb(null, req.body.fileName);
+    }
+  }
+});
+
+// File filter
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Invalid file type. Only JPEG, PNG and GIF are allowed.'), false);
+  }
+};
+
+const upload = multer({ 
+  storage, 
+  fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
+});
+
+
+
+
+
 const productController = {
+
+
+  async uploadImage(req, res) {
+    upload.single('image')(req, res, (err) => {
+      if (err instanceof multer.MulterError) {
+        return res.status(400).json({ 
+          message: 'File upload error',
+          error: err.message 
+        });
+      } else if (err) {
+        return res.status(400).json({ 
+          message: 'Invalid file',
+          error: err.message 
+        });
+      }
+      
+      if (!req.file) {
+        return res.status(400).json({ 
+          message: 'No file uploaded'
+        });
+      }
+
+      res.status(200).json({
+        message: 'File uploaded successfully',
+        fileName: req.file.filename
+      });
+    });
+  },
+
+
+
 
 
 

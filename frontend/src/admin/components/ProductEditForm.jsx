@@ -31,14 +31,24 @@ const ProductEditForm = () => {
     },
   });
 
+  // Get auth token function
+  const getAuthToken = () => {
+    return localStorage.getItem('token'); // or however you store your token
+  };
+
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
+        const token = getAuthToken();
         const response = await fetch(`http://localhost:3001/api/products/${id}`,{
-            method: 'PUT'
-        }
-        );
+            method: 'PUT',
+        
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
 
   console.log(response)
         if (!response.ok) throw new Error('Failed to fetch product');
@@ -57,20 +67,29 @@ const ProductEditForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const token = getAuthToken();
       const response = await fetch(`http://localhost:3001/api/products/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+        method: 'PUT',        
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          // headers: {
+          //   'Content-Type': 'application/json',
+          // },
+          body: JSON.stringify(formData),
+        }
+        
+      );
 
       if (!response.ok) throw new Error('Failed to update product');
       
-      navigate(`/dashboard/products/${id}`);
+      const newProduct = await response.json();
+      navigate(`/dashboard/products/${newProduct._id}`);
     } catch (err) {
       setError(err.message);
-    }
+      console.error('Error creating product:', err);
+    } 
   };
 
   const handleChange = (e) => {
