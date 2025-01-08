@@ -28,6 +28,9 @@ connectDB();
 // Routes
 app.use('/api/products', productRoutes);
 
+// In your Express app setup
+// app.use('/images/products', express.static('public/images/products'));
+// app.use('/images', express.static(path.join(__dirname, 'public/images')));
 // Error handling
 // app.use(errorHandler);
 

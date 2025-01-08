@@ -24,6 +24,22 @@ const ProductDetails = () => {
   };
 
  // Utility function to handle image paths
+// const getImageUrl = (imagePath) => {
+//   try {
+//     // Check if the image path is already a full URL
+//     if (imagePath.startsWith('http') || imagePath.startsWith('data:')) {
+//       return imagePath;
+//     }
+
+//     // Handle relative paths from assets directory
+//     return new URL(`/src/assets/images/products/${imagePath}`, import.meta.url).href;
+//   } catch (error) {
+//     console.error('Error loading image:', error);
+//     return '/src/assets/images/products/placeholder.png'; // Fallback image
+//   }
+// };
+
+
 const getImageUrl = (imagePath) => {
   try {
     // Check if the image path is already a full URL
@@ -31,14 +47,13 @@ const getImageUrl = (imagePath) => {
       return imagePath;
     }
 
-    // Handle relative paths from assets directory
-    return new URL(`/src/assets/images/products/${imagePath}`, import.meta.url).href;
+    // Use backend URL for images
+    return `http://localhost:3001/images/products/${imagePath}`;
   } catch (error) {
     console.error('Error loading image:', error);
-    return '/src/assets/images/products/placeholder.png'; // Fallback image
+    return '/placeholder.png'; // Fallback image
   }
 };
-
 
 
 
