@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Upload, X } from 'lucide-react';
+import ImageUploadSection from "./ImageUploadSection";
 
 const AddProductForm = () => {
   const navigate = useNavigate();
@@ -129,46 +130,46 @@ const AddProductForm = () => {
     }
   };
 
-  const handleDragEnter = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  };
+  // const handleDragEnter = (e) => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  //   setIsDragging(true);
+  // };
 
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  };
+  // const handleDragLeave = (e) => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  //   setIsDragging(false);
+  // };
 
-  const handleDrop = useCallback((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
+  // const handleDrop = useCallback((e) => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  //   setIsDragging(false);
 
-    const files = Array.from(e.dataTransfer.files);
-    const validFiles = files.filter(file => file.type.startsWith('image/'));
+  //   const files = Array.from(e.dataTransfer.files);
+  //   const validFiles = files.filter(file => file.type.startsWith('image/'));
 
-    setFormData(prev => ({
-      ...prev,
-      imageNames: [...prev.imageNames, ...validFiles],
-    }));
-  }, []);
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     imageNames: [...prev.imageNames, ...validFiles],
+  //   }));
+  // }, []);
 
-  const handleFileSelect = (e) => {
-    const files = Array.from(e.target.files);
-    setFormData(prev => ({
-      ...prev,
-      imageNames: [...prev.imageNames, ...files],
-    }));
-  };
+  // const handleFileSelect = (e) => {
+  //   const files = Array.from(e.target.files);
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     imageNames: [...prev.imageNames, ...files],
+  //   }));
+  // };
 
-  const removeImage = (indexToRemove) => {
-    setFormData(prev => ({
-      ...prev,
-      imageNames: prev.imageNames.filter((_, index) => index !== indexToRemove),
-    }));
-  };
+  // const removeImage = (indexToRemove) => {
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     imageNames: prev.imageNames.filter((_, index) => index !== indexToRemove),
+  //   }));
+  // };
 
 
   return (
@@ -177,7 +178,8 @@ const AddProductForm = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button
-            onClick={() => navigate('/d/')}
+            onClick={() => navigate('/dashboard/products')}
+
             className="flex items-center text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
@@ -193,12 +195,16 @@ const AddProductForm = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
+
+
+
+          <ImageUploadSection formData={formData} setFormData={setFormData} />
           {/* Image Upload Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-lg font-semibold mb-4">Product Images*</h2>
-            
+             */}
             {/* Drag & Drop Zone */}
-            <div
+            {/* <div
               onDragEnter={handleDragEnter}
               onDragOver={handleDragEnter}
               onDragLeave={handleDragLeave}
@@ -225,10 +231,10 @@ const AddProductForm = () => {
                   className="hidden"
                 />
               </label>
-            </div>
+            </div> */}
 
             {/* Image Preview */}
-            {formData.imageNames.length > 0 && (
+            {/* {formData.imageNames.length > 0 && (
               <div className="mt-6">
                 <h3 className="text-sm font-medium text-gray-700 mb-3">
                   Selected Images ({formData.imageNames.length})
@@ -253,7 +259,7 @@ const AddProductForm = () => {
                 </div>
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* Basic Information */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">

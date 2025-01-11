@@ -135,8 +135,8 @@ const Header = () => {
                 href="#"
                 className="text-lg  group relative w-max"
                 >
-                  <span class="px-1 relative z-10 group-hover:text-white"> {item}</span>
-                  <span class="absolute left-0 bottom-0 w-full h-[1.5px] transition-all bg-slate-950 z-0 group-hover:h-full rounded-sm "></span>
+                  {/* <span class="px-1 relative z-10 group-hover:text-white"> {item}</span>
+                  <span class="absolute left-0 bottom-0 w-full h-[1.5px] transition-all bg-slate-950 z-0 group-hover:h-full rounded-sm "></span> */}
                 </a>
               ))}
             </div>

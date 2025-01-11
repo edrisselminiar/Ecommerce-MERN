@@ -2,6 +2,7 @@
 
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const productRoutes = require('./routes/productRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const connectDB = require('./config/database');
@@ -13,8 +14,10 @@ const app = express();
 // Configures CORS to allow communication with the frontend
 app.use(cors({
     origin: 'http://localhost:5173', // URL of the frontend
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true // Allow credentials
   }));
+ 
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -24,13 +27,17 @@ app.use(express.json());
 connectDB();
 
 
+//for images
+// se correct path to public folder
+const publicPath = path.join(__dirname, '../public');
+app.use('/images/products', express.static(path.join(publicPath, 'images/products')));
+console.log('Serving images from:', path.join(publicPath, 'images/products'));
+
+
+
 
 // Routes
 app.use('/api/products', productRoutes);
-
-// In your Express app setup
-// app.use('/images/products', express.static('public/images/products'));
-// app.use('/images', express.static(path.join(__dirname, 'public/images')));
 // Error handling
 // app.use(errorHandler);
 

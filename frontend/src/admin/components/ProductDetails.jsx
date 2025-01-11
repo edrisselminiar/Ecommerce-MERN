@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
-
+import ProductGallery from './ProductGallery';
 
 import { 
   ArrowLeft, Package, Clock, Tag, Box, 
@@ -16,6 +16,8 @@ const ProductDetails = () => {
   const [error, setError] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
   const [isWishlist, setIsWishlist] = useState(false);
+
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   //console.log(id)
 
    // Get auth token function
@@ -23,55 +25,21 @@ const ProductDetails = () => {
     return localStorage.getItem('token'); // or however you store your token
   };
 
- // Utility function to handle image paths
-// const getImageUrl = (imagePath) => {
-//   try {
-//     // Check if the image path is already a full URL
-//     if (imagePath.startsWith('http') || imagePath.startsWith('data:')) {
-//       return imagePath;
-//     }
-
-//     // Handle relative paths from assets directory
-//     return new URL(`/src/assets/images/products/${imagePath}`, import.meta.url).href;
-//   } catch (error) {
-//     console.error('Error loading image:', error);
-//     return '/src/assets/images/products/placeholder.png'; // Fallback image
-//   }
-// };
-
-
-const getImageUrl = (imagePath) => {
-  try {
-    // Check if the image path is already a full URL
-    if (imagePath.startsWith('http') || imagePath.startsWith('data:')) {
-      return imagePath;
-    }
-
-    // Use backend URL for images
-    return `http://localhost:3001/images/products/${imagePath}`;
-  } catch (error) {
-    console.error('Error loading image:', error);
-    return '/placeholder.png'; // Fallback image
-  }
-};
-
-
-
 
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
         const token = getAuthToken();
-
+        
         const response = await fetch(`http://localhost:3001/api/products/${id}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
           }
-        }
         );
-
+        
         if (!response.ok) throw new Error('Failed to fetch product details');
         const data = await response.json();
         setProduct(data);
@@ -81,10 +49,10 @@ const getImageUrl = (imagePath) => {
         setLoading(false);
       }
     };
-
+    
     if (id) fetchProductDetails();
   }, [id]);
-
+  
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -92,7 +60,7 @@ const getImageUrl = (imagePath) => {
       </div>
     );
   }
-
+  
   if (error) {
     return (
       <div className="max-w-7xl mx-auto p-4">
@@ -102,7 +70,7 @@ const getImageUrl = (imagePath) => {
       </div>
     );
   }
-
+  
   if (!product) {
     return (
       <div className="max-w-7xl mx-auto p-4">
@@ -112,6 +80,14 @@ const getImageUrl = (imagePath) => {
       </div>
     );
   }
+
+    const getImageUrl = (images) => {
+    // Ensure the image name is defined
+    if (!images) return '';
+    // return `${PRODUCT_SERVICE_URL}/images/products/${images}`;
+    return `http://localhost:3001/images/products/${images}`;
+  };
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -152,9 +128,14 @@ const getImageUrl = (imagePath) => {
         {/* Main Content */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+
+
+
+            <ProductGallery product={product} getImageUrl={getImageUrl} />
             {/* Left Column - Image Gallery */}
             {/* Left Column - Image Gallery with Fixed Paths */}
-            <div className="p-6 space-y-4">
+            {/* <div className="p-6 space-y-4">
               <div className="aspect-square rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
                 <img
                   src={getImageUrl(product.images[activeImage])}
@@ -187,7 +168,7 @@ const getImageUrl = (imagePath) => {
                   </button>
                 ))}
               </div>
-            </div>
+            </div> */}
 
         
             {/* Right Column - Product Information */}

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import DeleteConfirmationDialog from "./../components/DeleteConfirmationDialog";
+
 
 import { 
   Eye, Edit2, Trash2, Plus, Search,
@@ -84,37 +86,66 @@ const ProductsTable = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      try {
-        const token = getAuthToken();
-        const response = await fetch(`http://localhost:3001/api/products/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (response.status === 401) {
-          throw new Error('Unauthorized: Please log in as admin');
+    try {
+      const token = getAuthToken();
+      const response = await fetch(`http://localhost:3001/api/products/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
-        
-        if (response.ok) {
-          fetchProducts();
-        } else {
-          throw new Error('Failed to delete product');
-        }
-      } catch (err) {
-        console.error('Error deleting product:', err);
-        setError(err.message);
-        
-        // Redirect to login if unauthorized
-        if (err.message.includes('Unauthorized')) {
-          navigate('/admin/login'); // Adjust the route as needed
-        }
+      });
+      
+      if (response.status === 401) {
+        throw new Error('Unauthorized: Please log in as admin');
+      }
+      if (response.ok) {
+        fetchProducts();
+      } else {
+        throw new Error('Failed to delete product');
+      }
+    } catch (err) {
+      console.error('Error deleting product:', err);
+      setError(err.message);
+      if (err.message.includes('Unauthorized')) {
+        navigate('/admin/login');
       }
     }
   };
+
+
+  // const handleDelete = async (id) => {
+  //   if (window.confirm('Are you sure you want to delete this product?')) {
+  //     try {
+  //       const token = getAuthToken();
+  //       const response = await fetch(`http://localhost:3001/api/products/${id}`, {
+  //         method: 'DELETE',
+  //         headers: {
+  //           'Authorization': `Bearer ${token}`,
+  //           'Content-Type': 'application/json'
+  //         }
+  //       });
+        
+  //       if (response.status === 401) {
+  //         throw new Error('Unauthorized: Please log in as admin');
+  //       }
+        
+  //       if (response.ok) {
+  //         fetchProducts();
+  //       } else {
+  //         throw new Error('Failed to delete product');
+  //       }
+  //     } catch (err) {
+  //       console.error('Error deleting product:', err);
+  //       setError(err.message);
+        
+  //       // Redirect to login if unauthorized
+  //       if (err.message.includes('Unauthorized')) {
+  //         navigate('/admin/login'); // Adjust the route as needed
+  //       }
+  //     }
+  //   }
+  // };
 
   if (loading) {
     return (
@@ -240,12 +271,16 @@ const ProductsTable = () => {
                     >
                       <Edit2 className="w-5 h-5" />
                     </button>
-                    <button
+                    {/* <button
                       onClick={() => handleDelete(product._id)}
                       className="text-red-600 hover:text-red-900"
                     >
                       <Trash2 size={20} />
-                    </button>
+                    </button> */}
+                     <DeleteConfirmationDialog 
+                      productId={product._id}
+                      onDelete={handleDelete}
+                    />
                   </div>
                 </td>
               </tr>

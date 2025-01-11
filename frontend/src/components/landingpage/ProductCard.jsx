@@ -4,7 +4,9 @@ import { Star } from 'lucide-react';
 
 const productImages = import.meta.glob('/src/assets/images/products/*.{png,jpg,jpeg,gif}', {
   eager: true,
-  as: 'url'
+  query: '?url',
+  import: 'default'
+  // as: 'url'
 });
 
   const getImageUrl = (imagePath) => {
