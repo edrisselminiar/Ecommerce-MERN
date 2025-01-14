@@ -2,9 +2,13 @@
 // Sends appropriate responses based on success or failure
 const AuthService = require('../services/authService');
 const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+
 
 
 class AuthController {
+
+
   async register(req, res) {
     try {
       const { user, token } = await AuthService.register(req.body);
@@ -50,12 +54,13 @@ class AuthController {
     }
   }
 
-  // New method to update user
+
+
   async updateUser(req, res) {
     try {
-      const { fullname, email } = req.body;
+      const { fullname, email, password } = req.body;
       const userId = req.params.id;
-
+  
       // Check if user exists
       let user = await User.findById(userId);
       if (!user) {
@@ -64,7 +69,7 @@ class AuthController {
           error: 'User not found'
         });
       }
-
+  
       // Check if email is already in use by another user
       if (email && email !== user.email) {
         const emailExists = await User.findOne({ email });
@@ -75,23 +80,32 @@ class AuthController {
           });
         }
       }
-
-      // Update user
+  
+      // Prepare update object
+      const updateFields = {
+        fullname: fullname || user.fullname,
+        email: email || user.email
+      };
+  
+      // If password is provided, hash it before updating
+      if (password) {
+        const salt = await bcrypt.genSalt(10);
+        updateFields.password = await bcrypt.hash(password, salt);
+      }
+  
+      // Update user with new fields
       user = await User.findByIdAndUpdate(
         userId,
         {
-          $set: {
-            fullname: fullname || user.fullname,
-            email: email || user.email
-          }
+          $set: updateFields
         },
         {
           new: true, // Return updated user
           runValidators: true, // Run schema validators
-          select: '-password' // Exclude password
+          select: '-password' // Exclude password from response
         }
       );
-
+  
       res.status(200).json({
         success: true,
         user
@@ -103,6 +117,8 @@ class AuthController {
       });
     }
   }
+
+
 
   // New method to delete user
   async deleteUser(req, res) {
@@ -130,6 +146,79 @@ class AuthController {
       });
     }
   }
+
+
+  async searchUsers(req, res) {
+    try {
+      const { query } = req.query; // Get the search query from request parameters
+      
+      if (!query) {
+        return res.status(400).json({
+          success: false,
+          error: 'Search query is required'
+        });
+      }
+  
+      // Create a regex search pattern that's case-insensitive
+      const searchPattern = new RegExp(query, 'i');
+  
+      // Search in both fullname and email fields
+      const users = await User.find({
+        $or: [
+          { fullname: searchPattern },
+          { email: searchPattern }
+        ]
+      })
+      .select('-password') // Exclude password from results
+      .sort({ createdAt: -1 });
+  
+      res.status(200).json({
+        success: true,
+        count: users.length,
+        users
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: 'Error searching users'
+      });
+    }
+  }
+
+  
+
+  // // New method to serche user
+  // async searchUser(req, res) {
+  //   try {
+  //     const { query } = req.query;
+  //     if (!query) {
+  //       return res.status(400).json({ message: 'Search query is required' });
+  //     }
+      
+  //     const users = await User.searchUsers(query);
+  //     res.json(users);
+  //   } catch (error) {
+  //     res.status(500).json({ message: 'Error searching users', error: error.message });
+  //   }
+
+  // }
+
+  // router.get('/search', async (req, res) => {
+  //   try {
+  //     const { query } = req.query;
+  //     if (!query) {
+  //       return res.status(400).json({ message: 'Search query is required' });
+  //     }
+      
+  //     const users = await User.searchUsers(query);
+  //     res.json(users);
+  //   } catch (error) {
+  //     res.status(500).json({ message: 'Error searching users', error: error.message });
+  //   }
+  // });
+
+
+
 
   // New method to get single user
   async getUser(req, res) {

@@ -114,38 +114,7 @@ const ProductsTable = () => {
   };
 
 
-  // const handleDelete = async (id) => {
-  //   if (window.confirm('Are you sure you want to delete this product?')) {
-  //     try {
-  //       const token = getAuthToken();
-  //       const response = await fetch(`http://localhost:3001/api/products/${id}`, {
-  //         method: 'DELETE',
-  //         headers: {
-  //           'Authorization': `Bearer ${token}`,
-  //           'Content-Type': 'application/json'
-  //         }
-  //       });
-        
-  //       if (response.status === 401) {
-  //         throw new Error('Unauthorized: Please log in as admin');
-  //       }
-        
-  //       if (response.ok) {
-  //         fetchProducts();
-  //       } else {
-  //         throw new Error('Failed to delete product');
-  //       }
-  //     } catch (err) {
-  //       console.error('Error deleting product:', err);
-  //       setError(err.message);
-        
-  //       // Redirect to login if unauthorized
-  //       if (err.message.includes('Unauthorized')) {
-  //         navigate('/admin/login'); // Adjust the route as needed
-  //       }
-  //     }
-  //   }
-  // };
+
 
   if (loading) {
     return (

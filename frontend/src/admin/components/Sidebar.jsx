@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { 
   Users, BarChart2, Settings, 
   Menu, ChevronDown, ChevronRight, LogOut, FolderKanban,
-  Boxes, Calendar, MessageSquare, ShoppingCart
+  Boxes, Calendar, MessageSquare, ShoppingCart,   
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -23,10 +23,17 @@ const Sidebar = () => {
       badge: '3'
     },
     {
-      id: 'users',
+      id: 'Users',
       label: 'Users',
       link: '/dashboard/users',
       icon: Users,
+      badge: '3'
+    },
+    {
+      id: 'logout',
+      label: 'logout',
+      link: '/dashboard/logout',
+      icon: LogOut,
       badge: '3'
     }
   ];

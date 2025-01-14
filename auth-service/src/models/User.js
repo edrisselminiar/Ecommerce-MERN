@@ -27,23 +27,12 @@ const userSchema = new mongoose.Schema({
           message: 'Please enter a valid email address'
         }
       },
-  // email: {
-  //   type: String,
-  //   required: true,
-  //   unique: true,
-  //   validate: {
-  //     validator: function(v) {
-  //       return v && v.length > 6;
-  //     },
-  //     message: 'Email cannot be empty'
-  //   }
 
-  // },
   password: {
     type: String,
     required: true,
     minlength: 8,
-    maxlength: 30,
+    maxlength: 60,
   }
 }, { timestamps: true }); // Add timestamps for createdAt and updatedAt fields
 
@@ -57,6 +46,16 @@ userSchema.pre('save', async function(next) {
 // Method to compare provided password with the stored hashed password
 userSchema.methods.comparePassword = async function(password) {
   return await bcrypt.compare(password, this.password); // Compare and return true or false
+};
+
+
+userSchema.statics.searchUsers = async function(query) {
+  return this.find({
+    $or: [
+      { fullname: { $regex: query, $options: 'i' } },
+      { email: { $regex: query, $options: 'i' } }
+    ]
+  });
 };
 
 // Export the User model based on the userSchema

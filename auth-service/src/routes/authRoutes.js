@@ -5,10 +5,14 @@ const AuthController = require('../controllers/authController');
 
 //start_Give admin the right to some root users
 const verifyAdmin = require('../middleware/verifyAdmin');
-router.get('/users',verifyAdmin, AuthController.getAllUsers);
-router.get('/users/:id',verifyAdmin, AuthController.getUser);
-router.put('/users/:id',verifyAdmin, AuthController.updateUser);
-router.delete('/users/:id',verifyAdmin, AuthController.deleteUser);
+router.get('/users', AuthController.getAllUsers);
+router.get('/users/:id', AuthController.getUser);
+router.put('/users/:id', AuthController.updateUser);
+router.delete('/users/:id', AuthController.deleteUser);
+// router.get('/search', AuthController.searchUser);
+router.get('/users/search', AuthController.searchUsers);
+
+
 //END_Give admin the right to some root users
 
 
