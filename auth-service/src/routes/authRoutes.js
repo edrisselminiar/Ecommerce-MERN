@@ -5,12 +5,11 @@ const AuthController = require('../controllers/authController');
 
 //start_Give admin the right to some root users
 const verifyAdmin = require('../middleware/verifyAdmin');
-router.get('/users', AuthController.getAllUsers);
-router.get('/users/:id', AuthController.getUser);
-router.put('/users/:id', AuthController.updateUser);
-router.delete('/users/:id', AuthController.deleteUser);
-// router.get('/search', AuthController.searchUser);
-router.get('/users/search', AuthController.searchUsers);
+router.get('/users',verifyAdmin, AuthController.getAllUsers);
+// router.get('/users/:id', AuthController.getUser);     //dont used
+router.put('/users/:id',verifyAdmin, AuthController.updateUser);
+router.delete('/users/:id',verifyAdmin, AuthController.deleteUser);
+// router.get('/users/search', AuthController.searchUsers);    //dont used
 
 
 //END_Give admin the right to some root users
@@ -27,10 +26,4 @@ router.post('/login', AuthController.login);
 
 
 
-// Adds a protected route that requires authentication.
-// router.get('/protected', authMiddleware, (req, res) => {
-//   res.json({ message: 'Protected route accessed successfully', userId: req.userId });
-// });
-
-// Export the router to be used in other parts of the application
 module.exports = router;

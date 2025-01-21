@@ -1,7 +1,3 @@
-
-
-
-
 import React, { useState, useEffect } from 'react';
 import { Pencil, Trash2, ChevronLeft, ChevronRight, Table } from 'lucide-react';
 import EditUserModal from "./../components/EditUserModal";
@@ -24,14 +20,29 @@ const UsersTable = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 const [userToDelete, setUserToDelete] = useState(null);
 
+  // Get auth token function
+  const getAuthToken = () => {
+    return localStorage.getItem('token'); // or however you store your token
+  };
+
+
   useEffect(() => {
     fetchUsers();
   }, [currentPage]);
 
   const fetchUsers = async () => {
     try {
+      const token = getAuthToken();
       setLoading(true);
-      const response = await fetch('http://localhost:3000/api/auth/users');
+      const response = await fetch('http://localhost:3000/api/auth/users',
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
       const data = await response.json();
       // Ensure data is an array
       const usersArray = Array.isArray(data) ? data : data.users || [];
@@ -53,8 +64,13 @@ const openDeleteModal = (user) => {
   
   const handleDelete = async (userId) => {
     try {
+      const token = getAuthToken();
       const response = await fetch(`http://localhost:3000/api/auth/users/${userId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
       if (response.ok) {
         fetchUsers();
@@ -68,9 +84,14 @@ const openDeleteModal = (user) => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
+      const token = getAuthToken();
       const response = await fetch(`http://localhost:3000/api/auth/users/${selectedUser._id}`, {
         method: 'PUT',
+        // headers: {
+        //   'Content-Type': 'application/json'
+        // },
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(formData)
