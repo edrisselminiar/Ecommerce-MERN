@@ -6,12 +6,20 @@ import {
   Menu, ChevronDown, ChevronRight, LogOut, FolderKanban,
   Boxes, Calendar, MessageSquare, ShoppingCart,   
 } from 'lucide-react';
+import { useUserCount } from './../hooks/useUserCount';
+import { useProductCount } from './../hooks/useProductCount';
+
+
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState('');
   const location = useLocation();
+  const { userCount, loading } = useUserCount();
+  // const { productsCount, loadingg } = useProductCount();
+  const { productCount, loadingg } = useProductCount();
+
 
   // Simplified menuItems to focus on Products and Users
   const menuItems = [
@@ -20,14 +28,17 @@ const Sidebar = () => {
       label: 'Products',
       link: '/dashboard/products',
       icon: FolderKanban,
-      badge: '3'
+      badge: loadingg ? '...' : productCount
+
+      // badge: '3'
     },
     {
       id: 'Users',
       label: 'Users',
       link: '/dashboard/users',
       icon: Users,
-      badge: '3'
+      badge: loading ? '...' : userCount
+      // badge: '3'
     },
     {
       id: 'logout',

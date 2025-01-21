@@ -69,8 +69,10 @@ const upload = multer({
 
 
 
+
 const productController = {
 
+  
 
   async uploadImage(req, res) {
     upload.single('image')(req, res, (err) => {
@@ -311,7 +313,29 @@ const productController = {
         error: error.message
       });
     }
+  },
+
+
+  
+  
+  async getProductCount(req, res) {
+    try {
+      const count = await Product.countDocuments({});
+      
+      res.status(200).json({
+        success: true,
+        count
+      });
+    } catch (error) {
+      console.error('Error getting product count:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Error retrieving product count'
+      });
+    }
   }
+
+
 };
 
 module.exports = productController;

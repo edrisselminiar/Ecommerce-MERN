@@ -185,40 +185,7 @@ class AuthController {
     }
   }
 
-  
-
-  // // New method to serche user
-  // async searchUser(req, res) {
-  //   try {
-  //     const { query } = req.query;
-  //     if (!query) {
-  //       return res.status(400).json({ message: 'Search query is required' });
-  //     }
-      
-  //     const users = await User.searchUsers(query);
-  //     res.json(users);
-  //   } catch (error) {
-  //     res.status(500).json({ message: 'Error searching users', error: error.message });
-  //   }
-
-  // }
-
-  // router.get('/search', async (req, res) => {
-  //   try {
-  //     const { query } = req.query;
-  //     if (!query) {
-  //       return res.status(400).json({ message: 'Search query is required' });
-  //     }
-      
-  //     const users = await User.searchUsers(query);
-  //     res.json(users);
-  //   } catch (error) {
-  //     res.status(500).json({ message: 'Error searching users', error: error.message });
-  //   }
-  // });
-
-
-
+ 
 
   // New method to get single user
   async getUser(req, res) {
@@ -244,8 +211,24 @@ class AuthController {
       });
     }
   }
-
   
+
+  //get number of usesr
+  async getUserCount(req, res) {
+    try {
+      const count = await User.countDocuments();
+      
+      res.status(200).json({
+        success: true,
+        count
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: 'Error retrieving user count'
+      });
+    }
+  }
 
 }
 

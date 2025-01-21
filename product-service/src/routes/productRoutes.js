@@ -25,6 +25,9 @@ router.get('/',verifyAdmin, productController.getProducts);
 // Search products
 router.get('/search',verifyAdmin, productController.searchProducts);
 
+// get number of  product
+router.get('/count',verifyAdmin, productController.getProductCount);
+
 // Get single product
 router.get('/:id',verifyAdmin, productController.getProductById);
 
@@ -33,42 +36,9 @@ router.put('/:id',verifyAdmin, productController.updateProduct);
 
 // Delete product
 router.delete('/:id',verifyAdmin, productController.deleteProduct);
+
+
 //END_Give admin the right to some root users
-
-
-
-
-
-// const path = require('path');
-
-
-
-//   // Configure multer for image upload
-//   const storage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//       cb(null, 'public/images/products/') // Store in public directory
-//     },
-//     filename: function (req, file, cb) {
-//       cb(null, req.body.fileName) // Use the filename we sent from the frontend
-//     }
-//   });
-  
-//   const upload = multer({ storage: storage });
-  
-//   // Image upload route
-//   router.post('/upload', upload.single('image'), (req, res) => {
-//     try {
-//       if (!req.file) {
-//         return res.status(400).json({ error: 'No file uploaded' });
-//       }
-//       res.status(200).json({ 
-//         message: 'File uploaded successfully',
-//         filename: req.file.filename 
-//       });
-//     } catch (error) {
-//       res.status(500).json({ error: 'Error uploading file' });
-//     }
-//   });
 
 
 
