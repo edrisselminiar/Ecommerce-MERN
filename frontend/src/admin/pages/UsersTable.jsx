@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Pencil, Trash2, ChevronLeft, ChevronRight, Table } from 'lucide-react';
-import EditUserModal from "./../components/EditUserModal";
-import DeleteConfirmationModalUsers from '../components/DeleteConfirmationModalUsers';
+import EditUserModal from "../components/user-components/EditUserModal";
+import DeleteConfirmationModalUsers from '../components/user-components/DeleteConfirmationModalUsers';
 
 const UsersTable = () => {
   const [users, setUsers] = useState([]);

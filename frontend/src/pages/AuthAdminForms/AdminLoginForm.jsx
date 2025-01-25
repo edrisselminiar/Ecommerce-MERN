@@ -50,7 +50,7 @@ const AdminLoginForm = () => {
         
         if (response.ok) {
           localStorage.setItem('token', data.token);
-          navigate('/Dashboard');
+          navigate('/Dashboard/logout');
         } else {
           setError(data.message || 'Login failed');
         }

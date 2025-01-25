@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DeleteConfirmationDialog from "./../components/DeleteConfirmationDialog";
+import DeleteConfirmationDialog from "../components/product-components/DeleteConfirmationDialog";
 
 
 import { 
