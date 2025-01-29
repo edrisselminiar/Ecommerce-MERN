@@ -33,6 +33,7 @@ const [userToDelete, setUserToDelete] = useState(null);
   const fetchUsers = async () => {
     try {
       const token = getAuthToken();
+      // console.log(token);
       setLoading(true);
       const response = await fetch('http://localhost:3000/api/auth/users',
         {

@@ -46,7 +46,7 @@ const PORT = process.env.PRODUCT_SERVICE_PORT || 3001;
 
 const startServer = async () => {
     try {
-        app.listen(PORT, () => {
+        app.listen(PORT, '0.0.0.0', () => {
             console.log(`Product service running on port ${PORT}`);
         });
     } catch (error) {

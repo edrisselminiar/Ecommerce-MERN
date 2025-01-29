@@ -11,7 +11,7 @@ const verifyAdmin = async (req, res, next) => {
             return res.status(401).json({ error: 'No token provided' });
         }
 
-        const response = await axios.get('http://localhost:3002/api/admin/verify', {
+        const response = await axios.get('http://admin-auth-service:3002/api/admin/verify', {
             headers: { 'x-auth-token': token }
         });
 

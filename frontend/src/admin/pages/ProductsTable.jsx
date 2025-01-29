@@ -68,9 +68,9 @@ const ProductsTable = () => {
       setLoading(false);
       
       // Redirect to login if unauthorized
-      if (err.message.includes('Unauthorized')) {
-        navigate('/admin/login'); // Adjust the route as needed
-      }
+      // if (err.message.includes('Unauthorized')) {
+      //   navigate('/admin/login'); // Adjust the route as needed
+      // }
     }
   };
 

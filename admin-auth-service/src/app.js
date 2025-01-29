@@ -30,7 +30,7 @@ app.use('/api/admin', authRoutes);//admin/auth
 
 // Start the server
 const PORT = process.env.AUTH_ADMIN_MONGODB_PORT || 3002;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
 
