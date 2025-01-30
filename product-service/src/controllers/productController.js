@@ -3,30 +3,30 @@ const multer = require('multer');
 const path = require('path');
 
 // Helper function for search queries
-const buildSearchQuery = (searchTerm) => {
-  return {
-    $or: [
-      { 'specifications.processor': { $regex: searchTerm, $options: 'i' } },
-      { 'specifications.ram': { $regex: searchTerm, $options: 'i' } },
-      { 'specifications.storage': { $regex: searchTerm, $options: 'i' } },
-      { 'specifications.graphicsCard': { $regex: searchTerm, $options: 'i' } },
-      { 'specifications.claver': { $regex: searchTerm, $options: 'i' } },
-      { Marke: { $regex: searchTerm, $options: 'i' } },
-      { description: { $regex: searchTerm, $options: 'i' } },
-      { type: { $regex: searchTerm, $options: 'i' } }
-    ]
-  };
-};
+// const buildSearchQuery = (searchTerm) => {
+//   return {
+//     $or: [
+//       { 'specifications.processor': { $regex: searchTerm, $options: 'i' } },
+//       { 'specifications.ram': { $regex: searchTerm, $options: 'i' } },
+//       { 'specifications.storage': { $regex: searchTerm, $options: 'i' } },
+//       { 'specifications.graphicsCard': { $regex: searchTerm, $options: 'i' } },
+//       { 'specifications.claver': { $regex: searchTerm, $options: 'i' } },
+//       { Marke: { $regex: searchTerm, $options: 'i' } },
+//       { description: { $regex: searchTerm, $options: 'i' } },
+//       { type: { $regex: searchTerm, $options: 'i' } }
+//     ]
+//   };
+// };
 
 
 
 // Helper function for price filter
-const buildPriceFilter = (minPrice, maxPrice) => {
-  let priceFilter = {};
-  if (minPrice) priceFilter.$gte = Number(minPrice);
-  if (maxPrice) priceFilter.$lte = Number(maxPrice);
-  return Object.keys(priceFilter).length ? { price: priceFilter } : {};
-};
+// const buildPriceFilter = (minPrice, maxPrice) => {
+//   let priceFilter = {};
+//   if (minPrice) priceFilter.$gte = Number(minPrice);
+//   if (maxPrice) priceFilter.$lte = Number(maxPrice);
+//   return Object.keys(priceFilter).length ? { price: priceFilter } : {};
+// };
 
 
 
@@ -67,6 +67,45 @@ const upload = multer({
 
 
 
+
+  // Helper function to build search query
+  const buildSearchQuery = (search) => {
+    if (!search) return {};
+  
+    return {
+      $or: [
+        { description: { $regex: search, $options: 'i' } },
+        { type: { $regex: search, $options: 'i' } },
+        // { price: { $regex: search, $options: 'i' } },
+        { Marke: { $regex: search, $options: 'i' } },
+        { garantie: { $regex: search, $options: 'i' } },
+        // { stock: { $regex: search, $options: 'i' } },
+        { 'specifications.processor': { $regex: search, $options: 'i' } },
+        { 'specifications.ram': { $regex: search, $options: 'i' } },
+        { 'specifications.storage': { $regex: search, $options: 'i' } },
+        { 'specifications.graphicsCard': { $regex: search, $options: 'i' } },
+        { 'specifications.display': { $regex: search, $options: 'i' } },
+        { 'specifications.claver': { $regex: search, $options: 'i' } },
+        { 'specifications.systemeDéxploitation': { $regex: search, $options: 'i' } },
+        { 'specifications.boiter': { $regex: search, $options: 'i' } },
+        { 'specifications.alimonation': { $regex: search, $options: 'i' } },
+      ],
+    };
+  };
+  // Helper function to build price filter
+  const buildPriceFilter = (minPrice, maxPrice) => {
+    const priceFilter = {};
+  
+    if (minPrice) {
+      priceFilter.price = { ...priceFilter.price, $gte: parseFloat(minPrice) };
+    }
+  
+    if (maxPrice) {
+      priceFilter.price = { ...priceFilter.price, $lte: parseFloat(maxPrice) };
+    }
+  
+    return priceFilter;
+  };
 
 
 
@@ -120,52 +159,49 @@ const productController = {
     }
   },
 
-  // Get all products with optional filters
-  async getProducts(req, res) {
-    try {
-      const { 
-        page = 1, 
-        limit = 10,
-        minPrice,
-        maxPrice,
-        search,
-        sort = 'createdAt'
-      } = req.query;
 
-      let query = {};
 
-      // Apply search if provided
-      if (search) {
-        query = { ...query, ...buildSearchQuery(search) };
-      }
 
-      // Apply price filter if provided
-      const priceFilter = buildPriceFilter(minPrice, maxPrice);
-      if (Object.keys(priceFilter).length) {
-        query = { ...query, ...priceFilter };
-      }
+// Get all products with optional filters
+// Get all products with optional filters
+async getProducts(req, res) {
+  try {
+    const { 
+      page = 1, 
+      limit = 10,
+      search,
+      sort = '-createdAt' // Default to newest first
+    } = req.query;
 
-      const products = await Product.find(query)
-        .sort({ [sort]: -1 })
-        .limit(limit * 1)
-        .skip((page - 1) * limit)
-        .exec();
+    let query = {};
 
-      const count = await Product.countDocuments(query);
-
-      res.json({
-        products,
-        totalPages: Math.ceil(count / limit),
-        currentPage: page,
-        totalProducts: count
-      });
-    } catch (error) {
-      res.status(500).json({ 
-        message: 'Error fetching products',
-        error: error.message 
-      });
+    // Apply search if provided
+    if (search) {
+      query = { ...query, ...buildSearchQuery(search) };
     }
-  },
+
+    const products = await Product.find(query)
+      .sort(sort) // Use the sort parameter
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .exec();
+
+    const count = await Product.countDocuments(query);
+
+    res.json({
+      products,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+      totalProducts: count
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      message: 'Error fetching products',
+      error: error.message 
+    });
+  }
+},
+
 
   // Get single product by ID
   async getProductById(req, res) {

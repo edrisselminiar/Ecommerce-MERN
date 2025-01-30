@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DeleteConfirmationDialog from "../components/product-components/DeleteConfirmationDialog";
-
-
 import { 
-  Eye, Edit2, Trash2, Plus, Search,
+  Eye, Edit2, Trash2, Plus, Search, X,
   ChevronLeft, ChevronRight
 } from 'lucide-react';
 
@@ -36,8 +34,7 @@ const ProductsTable = () => {
       const response = await fetch(
         `http://localhost:3001/api/products?page=${currentPage}&limit=10${
           searchTerm ? `&search=${searchTerm}` : ''
-        }`
-        ,
+        }`,
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -68,15 +65,20 @@ const ProductsTable = () => {
       setLoading(false);
       
       // Redirect to login if unauthorized
-      // if (err.message.includes('Unauthorized')) {
-      //   navigate('/admin/login'); // Adjust the route as needed
-      // }
+      if (err.message.includes('Unauthorized')) {
+        navigate('/admin/login'); // Adjust the route as needed
+      }
     }
   };
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
-    setCurrentPage(1);
+    setCurrentPage(1); // Reset to the first page when searching
+  };
+
+  const resetSearch = () => {
+    setSearchTerm(''); // Clear the search term
+    setCurrentPage(1); // Reset to the first page
   };
 
   const handlePageChange = (newPage) => {
@@ -113,9 +115,6 @@ const ProductsTable = () => {
     }
   };
 
-
-
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -139,8 +138,8 @@ const ProductsTable = () => {
         <h1 className="text-2xl font-bold text-gray-800">Products Management</h1>
         
         <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-          {/* Search Input */}
-          <div className="relative w-full md:w-64">
+          {/* Search Input and Reset Button */}
+          <div className="relative w-full md:w-64 ">
             <input
               type="text"
               placeholder="Search products..."
@@ -148,13 +147,17 @@ const ProductsTable = () => {
               value={searchTerm}
               onChange={handleSearch}
             />
+            {searchTerm && (
+              <button
+                onClick={resetSearch}
+                className="absolute right-2 top-[25%] text-red-500 hover:text-gray-700 "
+              >
+                <X size={20} />
+              </button>
+            )}
           </div>
 
-
-
-          
           {/* Add Product Button */}
-          
           <button
             onClick={() => navigate('/dashboard/products/add')}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
@@ -240,13 +243,7 @@ const ProductsTable = () => {
                     >
                       <Edit2 className="w-5 h-5" />
                     </button>
-                    {/* <button
-                      onClick={() => handleDelete(product._id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      <Trash2 size={20} />
-                    </button> */}
-                     <DeleteConfirmationDialog 
+                    <DeleteConfirmationDialog 
                       productId={product._id}
                       onDelete={handleDelete}
                     />
@@ -311,8 +308,6 @@ const ProductsTable = () => {
 };
 
 export default ProductsTable;
-
-
 
 
 

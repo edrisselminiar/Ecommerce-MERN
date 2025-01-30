@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Pencil, Trash2, ChevronLeft, ChevronRight, Table } from 'lucide-react';
+import { Pencil, Trash2, ChevronLeft, ChevronRight, Table, X } from 'lucide-react'; // Added X icon for reset button
 import EditUserModal from "../components/user-components/EditUserModal";
 import DeleteConfirmationModalUsers from '../components/user-components/DeleteConfirmationModalUsers';
 
@@ -15,16 +15,16 @@ const UsersTable = () => {
     email: '',
     password: ''
   });
+  const [searchQuery, setSearchQuery] = useState('');
   const itemsPerPage = 10;
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-const [userToDelete, setUserToDelete] = useState(null);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   // Get auth token function
   const getAuthToken = () => {
     return localStorage.getItem('token'); // or however you store your token
   };
-
 
   useEffect(() => {
     fetchUsers();
@@ -33,7 +33,6 @@ const [userToDelete, setUserToDelete] = useState(null);
   const fetchUsers = async () => {
     try {
       const token = getAuthToken();
-      // console.log(token);
       setLoading(true);
       const response = await fetch('http://localhost:3000/api/auth/users',
         {
@@ -45,7 +44,6 @@ const [userToDelete, setUserToDelete] = useState(null);
       );
 
       const data = await response.json();
-      // Ensure data is an array
       const usersArray = Array.isArray(data) ? data : data.users || [];
       setUsers(usersArray);
       setError(null);
@@ -57,12 +55,11 @@ const [userToDelete, setUserToDelete] = useState(null);
     }
   };
 
-
-const openDeleteModal = (user) => {
+  const openDeleteModal = (user) => {
     setUserToDelete(user);
     setIsDeleteModalOpen(true);
   };
-  
+
   const handleDelete = async (userId) => {
     try {
       const token = getAuthToken();
@@ -88,9 +85,6 @@ const openDeleteModal = (user) => {
       const token = getAuthToken();
       const response = await fetch(`http://localhost:3000/api/auth/users/${selectedUser._id}`, {
         method: 'PUT',
-        // headers: {
-        //   'Content-Type': 'application/json'
-        // },
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -116,11 +110,22 @@ const openDeleteModal = (user) => {
     setIsEditModalOpen(true);
   };
 
+  // Filter users based on search query
+  const filteredUsers = users.filter(user =>
+    user.fullname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Reset search query
+  const resetSearch = () => {
+    setSearchQuery('');
+  };
+
   // Pagination calculations
-  const totalPages = Math.ceil((users?.length || 0) / itemsPerPage);
+  const totalPages = Math.ceil((filteredUsers?.length || 0) / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentUsers = users?.slice(startIndex, endIndex) || [];
+  const currentUsers = filteredUsers?.slice(startIndex, endIndex) || [];
 
   if (loading) {
     return (
@@ -143,6 +148,24 @@ const openDeleteModal = (user) => {
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-800">Users Management</h2>
+          {/* Search Bar and Reset Button */}
+          <div className="mt-4 flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Search users..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {searchQuery && (
+              <button
+                onClick={resetSearch}
+                className="p-2 text-red-500 hover:text-gray-700 focus:outline-none -ml-12 "
+              >
+                <X size={20} /> {/* Reset icon */}
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Table */}
@@ -207,7 +230,7 @@ const openDeleteModal = (user) => {
         </div>
 
         {/* Pagination */}
-        {users.length > 0 && (
+        {filteredUsers.length > 0 && (
           <div className="px-6 py-4 flex items-center justify-between border-t border-gray-200">
             <div className="flex items-center">
               <button
@@ -232,7 +255,7 @@ const openDeleteModal = (user) => {
         )}
       </div>
 
-     {/* popup update sers */}
+      {/* popup update users */}
       <EditUserModal 
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
@@ -240,18 +263,19 @@ const openDeleteModal = (user) => {
         user={selectedUser}
         formData={formData}
         setFormData={setFormData}
-        />
+      />
 
-        {/* popup delete users */}
-        <DeleteConfirmationModalUsers 
+      {/* popup delete users */}
+      <DeleteConfirmationModalUsers 
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={() => handleDelete(userToDelete?._id)}
         userName={userToDelete?.fullname}
-        />
+      />
     </div>
   );
 };
 
 export default UsersTable;
+
 
