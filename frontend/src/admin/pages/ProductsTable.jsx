@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import DeleteConfirmationDialog from "../components/product-components/DeleteConfirmationDialog";
 import { 
   Eye, Edit2, Trash2, Plus, Search, X,
-  ChevronLeft, ChevronRight
+  ChevronLeft, ChevronRight, RefreshCw
 } from 'lucide-react';
+import Slider from 'rc-slider';
+import 'rc-slider/assets/index.css';
 
 const ProductsTable = () => {
   const [products, setProducts] = useState([]);
@@ -19,6 +21,9 @@ const ProductsTable = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalProducts, setTotalProducts] = useState(0);
 
+  const [priceRange, setPriceRange] = useState([0, 20000]);
+  const [stockRange, setStockRange] = useState([0, 100]);
+
   // Get auth token function
   const getAuthToken = () => {
     return localStorage.getItem('token'); // or however you store your token
@@ -26,7 +31,7 @@ const ProductsTable = () => {
 
   useEffect(() => {
     fetchProducts();
-  }, [currentPage, searchTerm]);
+  }, [currentPage, searchTerm, priceRange, stockRange]);
 
   const fetchProducts = async () => {
     try {
@@ -34,7 +39,7 @@ const ProductsTable = () => {
       const response = await fetch(
         `http://localhost:3001/api/products?page=${currentPage}&limit=10${
           searchTerm ? `&search=${searchTerm}` : ''
-        }`,
+        }&minPrice=${priceRange[0]}&maxPrice=${priceRange[1]}&minStock=${stockRange[0]}&maxStock=${stockRange[1]}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -71,6 +76,14 @@ const ProductsTable = () => {
     }
   };
 
+  const handlePriceChange = (value) => {
+    setPriceRange(value);
+  };
+
+  const handleStockChange = (value) => {
+    setStockRange(value);
+  };
+
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
     setCurrentPage(1); // Reset to the first page when searching
@@ -79,6 +92,14 @@ const ProductsTable = () => {
   const resetSearch = () => {
     setSearchTerm(''); // Clear the search term
     setCurrentPage(1); // Reset to the first page
+  };
+
+  // Reset all filters
+  const resetAllFilters = () => {
+    setSearchTerm('');
+    setPriceRange([0, 20000]);
+    setStockRange([0, 100]);
+    setCurrentPage(1);
   };
 
   const handlePageChange = (newPage) => {
@@ -164,7 +185,66 @@ const ProductsTable = () => {
           >
             <Plus className="w-5 h-5 mr-2" /> Add Product
           </button>
+
+          {/* Reset All Filters Button */}
+          <button
+            onClick={resetAllFilters}
+            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center justify-center"
+          >
+            <RefreshCw className="w-5 h-5 mr-2" /> Reset Filters
+          </button>
         </div>
+      </div>
+
+      {/* Range Sliders */}
+      <div className="mb-6 w-full bg-gray-50 ">
+
+        <div className="mb-4 w-full ml-6">
+          <label className="block text-sm font-medium text-gray-700">Price Range</label>
+          <div className=' w-6/12'>
+            <Slider
+              range
+              min={0}
+              max={20000}
+              value={priceRange}
+              onChange={handlePriceChange}
+              trackStyle={[{ backgroundColor: '#3b82f6' }]}
+              handleStyle={[
+                { backgroundColor: '#3b82f6', borderColor: '#3b82f6' },
+                { backgroundColor: '#3b82f6', borderColor: '#3b82f6' }
+              ]}
+            />
+
+          </div>
+
+
+          <div className="text-sm text-gray-500">
+            ${priceRange[0]} - ${priceRange[1]}
+          </div>
+        </div>
+
+        <div className=' w-full ml-6'>
+          <label className="block text-sm font-medium text-gray-700">Stock Range</label>
+          <div className=' w-6/12'>
+
+            <Slider
+              range
+              min={0}
+              max={100}
+              value={stockRange}
+              onChange={handleStockChange}
+              trackStyle={[{ backgroundColor: '#3b82f6' }]}
+              handleStyle={[
+                { backgroundColor: '#3b82f6', borderColor: '#3b82f6' },
+                { backgroundColor: '#3b82f6', borderColor: '#3b82f6' }
+              ]}
+            />
+          </div>
+          <div className="text-sm text-gray-500">
+            {stockRange[0]} - {stockRange[1]}
+          </div>
+        </div>
+
       </div>
 
       {/* Table */}
@@ -308,6 +388,4 @@ const ProductsTable = () => {
 };
 
 export default ProductsTable;
-
-
 

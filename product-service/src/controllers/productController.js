@@ -163,6 +163,8 @@ const productController = {
 
 
 // Get all products with optional filters
+
+
 // Get all products with optional filters
 async getProducts(req, res) {
   try {
@@ -170,7 +172,11 @@ async getProducts(req, res) {
       page = 1, 
       limit = 10,
       search,
-      sort = '-createdAt' // Default to newest first
+      sort = '-createdAt', // Default to newest first
+      minPrice,
+      maxPrice,
+      minStock,
+      maxStock
     } = req.query;
 
     let query = {};
@@ -178,6 +184,16 @@ async getProducts(req, res) {
     // Apply search if provided
     if (search) {
       query = { ...query, ...buildSearchQuery(search) };
+    }
+
+    // Apply price range filter
+    if (minPrice !== undefined && maxPrice !== undefined) {
+      query.price = { $gte: Number(minPrice), $lte: Number(maxPrice) };
+    }
+
+    // Apply stock range filter
+    if (minStock !== undefined && maxStock !== undefined) {
+      query.stock = { $gte: Number(minStock), $lte: Number(maxStock) };
     }
 
     const products = await Product.find(query)
