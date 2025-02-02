@@ -127,18 +127,19 @@ const UsersTable = () => {
   const endIndex = startIndex + itemsPerPage;
   const currentUsers = filteredUsers?.slice(startIndex, endIndex) || [];
 
+
   if (loading) {
     return (
-      <div className="w-full h-48 flex items-center justify-center">
-        <div className="text-gray-500">Loading users...</div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="w-full h-48 flex items-center justify-center">
-        <div className="text-red-500">{error}</div>
+      <div className="p-4 text-red-500 bg-red-50 rounded-md">
+        <p>Error: {error}</p>
       </div>
     );
   }

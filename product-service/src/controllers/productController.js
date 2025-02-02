@@ -164,8 +164,6 @@ const productController = {
 
 // Get all products with optional filters
 
-
-// Get all products with optional filters
 async getProducts(req, res) {
   try {
     const { 
@@ -217,6 +215,7 @@ async getProducts(req, res) {
     });
   }
 },
+
 
 
   // Get single product by ID

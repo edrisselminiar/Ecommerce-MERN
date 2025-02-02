@@ -12,7 +12,11 @@ const ProductsTable = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // searche
   const [searchTerm, setSearchTerm] = useState('');
+  const [tempSearchTerm, setTempSearchTerm] = useState('');
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const navigate = useNavigate();
@@ -21,8 +25,13 @@ const ProductsTable = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalProducts, setTotalProducts] = useState(0);
 
+  // const [priceRange, setPriceRange] = useState([0, 20000]);
+  // const [stockRange, setStockRange] = useState([0, 100]);
   const [priceRange, setPriceRange] = useState([0, 20000]);
+  const [displayPriceRange, setDisplayPriceRange] = useState([0, 20000]); // For visual feedback
+
   const [stockRange, setStockRange] = useState([0, 100]);
+  const [displayStockRange, setDisplayStockRange] = useState([0, 100]); // For visual feedback
 
   // Get auth token function
   const getAuthToken = () => {
@@ -33,7 +42,23 @@ const ProductsTable = () => {
     fetchProducts();
   }, [currentPage, searchTerm, priceRange, stockRange]);
 
+  // const fetchProducts = async () => {
+  //   try {
+  //     const token = getAuthToken();
+  //     const response = await fetch(
+  //       `http://localhost:3001/api/products?page=${currentPage}&limit=10${
+  //         searchTerm ? `&search=${searchTerm}` : ''
+  //       }&minPrice=${priceRange[0]}&maxPrice=${priceRange[1]}&minStock=${stockRange[0]}&maxStock=${stockRange[1]}`,
+  //       {
+  //         headers: {
+  //           'Authorization': `Bearer ${token}`,
+  //           'Content-Type': 'application/json'
+  //         }
+  //       }
+  //     );
+      
   const fetchProducts = async () => {
+    setLoading(true);  // Add this line to trigger loading state
     try {
       const token = getAuthToken();
       const response = await fetch(
@@ -47,7 +72,7 @@ const ProductsTable = () => {
           }
         }
       );
-      
+
       if (response.status === 401) {
         throw new Error('Unauthorized: Please log in as admin');
       }
@@ -73,29 +98,67 @@ const ProductsTable = () => {
       if (err.message.includes('Unauthorized')) {
         navigate('/admin/login'); // Adjust the route as needed
       }
-    }
+    //}
+  } finally {
+    setLoading(false);  // Ensure loading is always false when done
+  }
+};
+  // };
+
+
+
+  // Sync display ranges when actual ranges change externally
+  useEffect(() => {
+    setDisplayPriceRange(priceRange);
+  }, [priceRange]);
+
+  useEffect(() => {
+    setDisplayStockRange(stockRange);
+  }, [stockRange]);
+
+  // Update handlers to use onAfterChange
+  const handlePriceChange = (value) => {
+    setDisplayPriceRange(value); // Update display during drag
   };
 
-  const handlePriceChange = (value) => {
-    setPriceRange(value);
+  const handlePriceChangeComplete = (value) => {
+    setPriceRange(value); // Final update after drag
   };
 
   const handleStockChange = (value) => {
-    setStockRange(value);
+    setDisplayStockRange(value); // Update display during drag
   };
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
+  const handleStockChangeComplete = (value) => {
+    setStockRange(value); // Final update after drag
+  };
+
+
+
+  // const handleSearch = (e) => {
+  //   setSearchTerm(e.target.value);
+  //   setCurrentPage(1); // Reset to the first page when searching
+  // };
+  const handleSearch = () => {
+    setSearchTerm(tempSearchTerm);
     setCurrentPage(1); // Reset to the first page when searching
   };
 
+  // const resetSearch = () => {
+  //   setSearchTerm(''); // Clear the search term
+  //   setCurrentPage(1); // Reset to the first page
+  // };
+
   const resetSearch = () => {
+    setTempSearchTerm(''); // Clear the temporary search term
     setSearchTerm(''); // Clear the search term
     setCurrentPage(1); // Reset to the first page
   };
 
+
   // Reset all filters
   const resetAllFilters = () => {
+    setTempSearchTerm('');
     setSearchTerm('');
     setPriceRange([0, 20000]);
     setStockRange([0, 100]);
@@ -155,30 +218,38 @@ const ProductsTable = () => {
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+      {/* <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-2xl font-bold text-gray-800">Products Management</h1>
         
         <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-          {/* Search Input and Reset Button */}
-          <div className="relative w-full md:w-64 ">
+        Search Input and Reset Button 
+
+
+          <div className="relative w-full md:w-64">
             <input
               type="text"
               placeholder="Search products..."
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              value={searchTerm}
-              onChange={handleSearch}
+              value={tempSearchTerm}
+              onChange={(e) => setTempSearchTerm(e.target.value)}
             />
-            {searchTerm && (
+            {tempSearchTerm && (
               <button
                 onClick={resetSearch}
-                className="absolute right-2 top-[25%] text-red-500 hover:text-gray-700 "
+                className="absolute right-2 top-[25%] text-red-500 hover:text-gray-700"
               >
                 <X size={20} />
               </button>
             )}
+            <button
+              onClick={handleSearch}
+              className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <Search  />
+            </button>
           </div>
 
-          {/* Add Product Button */}
+          Add Product Button 
           <button
             onClick={() => navigate('/dashboard/products/add')}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
@@ -186,7 +257,7 @@ const ProductsTable = () => {
             <Plus className="w-5 h-5 mr-2" /> Add Product
           </button>
 
-          {/* Reset All Filters Button */}
+           Reset All Filters Button 
           <button
             onClick={resetAllFilters}
             className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center justify-center"
@@ -196,59 +267,200 @@ const ProductsTable = () => {
         </div>
       </div>
 
-      {/* Range Sliders */}
+       Range Sliders 
       <div className="mb-6 w-full bg-gray-50 ">
 
         <div className="mb-4 w-full ml-6">
           <label className="block text-sm font-medium text-gray-700">Price Range</label>
           <div className=' w-6/12'>
+
+         
+
             <Slider
               range
               min={0}
               max={20000}
-              value={priceRange}
+              value={displayPriceRange}
               onChange={handlePriceChange}
+              onChangeComplete={handlePriceChangeComplete} // Updated prop
               trackStyle={[{ backgroundColor: '#3b82f6' }]}
               handleStyle={[
                 { backgroundColor: '#3b82f6', borderColor: '#3b82f6' },
                 { backgroundColor: '#3b82f6', borderColor: '#3b82f6' }
               ]}
             />
-
-          </div>
-
-
+                      </div>
           <div className="text-sm text-gray-500">
-            ${priceRange[0]} - ${priceRange[1]}
+            ${displayPriceRange[0]} - ${displayPriceRange[1]}
           </div>
         </div>
 
         <div className=' w-full ml-6'>
           <label className="block text-sm font-medium text-gray-700">Stock Range</label>
           <div className=' w-6/12'>
+    
 
             <Slider
               range
               min={0}
               max={100}
-              value={stockRange}
+              value={displayStockRange}
               onChange={handleStockChange}
+              onChangeComplete={handleStockChangeComplete} // Updated prop
               trackStyle={[{ backgroundColor: '#3b82f6' }]}
               handleStyle={[
                 { backgroundColor: '#3b82f6', borderColor: '#3b82f6' },
                 { backgroundColor: '#3b82f6', borderColor: '#3b82f6' }
               ]}
             />
+            
           </div>
+            <div className="text-sm text-gray-500">
+              ${displayStockRange[0]} - ${displayStockRange[1]}
+            </div>
+        </div>
+
+      </div> */}
+<div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 p-6 bg-white shadow-sm rounded-lg">
+        <h1 className="text-3xl font-semibold text-gray-900">Products Management</h1>
+        
+        <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+          <div className="relative flex-1 sm:max-w-md">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search products..."
+                className="w-full pl-4 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                value={tempSearchTerm}
+                onChange={(e) => setTempSearchTerm(e.target.value)}
+              />
+              {tempSearchTerm && (
+                <button
+                  onClick={resetSearch}
+                  className="absolute right-10 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              )}
+              <button
+                onClick={handleSearch}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <Search size={18} />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button
+              onClick={() => navigate('/dashboard/products/add')}
+              className="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 text-sm font-medium text-white rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-100 transition-colors"
+            >
+              <Plus className="w-4 h-4 mr-2" /> Add Product
+            </button>
+
+            <button
+              onClick={resetAllFilters}
+              className="inline-flex items-center justify-center px-4 py-2.5 bg-gray-100 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-200 focus:ring-4 focus:ring-gray-50 transition-colors"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" /> Reset Filters
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+
+      {/* Range Sliders  */}
+      <div className="mb-6 w-full bg-gray-50 ">
+
+        <div className="mb-4 w-full ml-6">
+          <label className="block text-sm font-medium text-gray-700">Price Range</label>
+          <div className=' w-6/12'>
+
+         
+
+            <Slider
+              range
+              min={0}
+              max={20000}
+              value={displayPriceRange}
+              onChange={handlePriceChange}
+              onChangeComplete={handlePriceChangeComplete} // Updated prop
+              trackStyle={[{ backgroundColor: '#3b82f6' }]}
+              handleStyle={[
+                { backgroundColor: '#3b82f6', borderColor: '#3b82f6' },
+                { backgroundColor: '#3b82f6', borderColor: '#3b82f6' }
+              ]}
+            />
+                      </div>
           <div className="text-sm text-gray-500">
-            {stockRange[0]} - {stockRange[1]}
+            ${displayPriceRange[0]} - ${displayPriceRange[1]}
           </div>
+        </div>
+
+        <div className=' w-full ml-6'>
+          <label className="block text-sm font-medium text-gray-700">Stock Range</label>
+          <div className=' w-6/12'>
+    
+
+            <Slider
+              range
+              min={0}
+              max={100}
+              value={displayStockRange}
+              onChange={handleStockChange}
+              onChangeComplete={handleStockChangeComplete} // Updated prop
+              trackStyle={[{ backgroundColor: '#3b82f6' }]}
+              handleStyle={[
+                { backgroundColor: '#3b82f6', borderColor: '#3b82f6' },
+                { backgroundColor: '#3b82f6', borderColor: '#3b82f6' }
+              ]}
+            />
+            
+          </div>
+            <div className="text-sm text-gray-500">
+              ${displayStockRange[0]} - ${displayStockRange[1]}
+            </div>
         </div>
 
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
+
+
+      {/* 
+
+
+      <div className="mt-6 p-6 bg-white shadow-sm rounded-lg">
+        <div className="max-w-xl">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
+          <Slider
+            range
+            min={0}
+            max={20000}
+            value={displayPriceRange}
+            onChange={handlePriceChange}
+            onChangeComplete={handlePriceChangeComplete}
+            className="mt-2"
+          />
+          <div className="mt-2 text-sm text-gray-500">
+            ${displayPriceRange[0]} - ${displayPriceRange[1]}
+          </div>
+        </div>
+      </div> */}
+
+
+
+      <div className="overflow-x-auto relative">
+
+      {loading && (
+          <div className="loading-overlay mt-11">
+            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        )}
+
+
+
         <table className="min-w-full bg-white rounded-lg">
           <thead className="bg-gray-50">
             <tr>
@@ -334,6 +546,10 @@ const ProductsTable = () => {
           </tbody>
         </table>
       </div>
+
+
+
+
 
       {/* Pagination Controls */}
       <div className="mt-4 flex items-center justify-between px-4">
