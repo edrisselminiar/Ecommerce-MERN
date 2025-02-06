@@ -4,32 +4,36 @@ import EditUserModal from "../components/user-components/EditUserModal";
 import DeleteConfirmationModalUsers from '../components/user-components/DeleteConfirmationModalUsers';
 
 const UsersTable = () => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [formData, setFormData] = useState({
+
+  // State variables
+  const [users, setUsers] = useState([]); // Stores the list of users
+  const [loading, setLoading] = useState(true); // Tracks loading state
+  const [error, setError] = useState(null); // Stores error messages
+  const [currentPage, setCurrentPage] = useState(1); // Tracks the current page for pagination
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Controls the visibility of the edit modal
+  const [selectedUser, setSelectedUser] = useState(null); // Stores the user selected for editing
+  const [formData, setFormData] = useState({ // Stores form data for editing a user
     fullname: '',
     email: '',
     password: ''
   });
-  const [searchQuery, setSearchQuery] = useState('');
-  const itemsPerPage = 10;
+  const [searchQuery, setSearchQuery] = useState(''); // Stores the search query for filtering users
+  const itemsPerPage = 10; // Number of users to display per page
 
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // Controls the visibility of the delete modal
+  const [userToDelete, setUserToDelete] = useState(null); // Stores the user selected for deletion
 
-  // Get auth token function
+  // Function to retrieve the authentication token from localStorage
   const getAuthToken = () => {
     return localStorage.getItem('token'); // or however you store your token
   };
 
+  // Fetch users when the component mounts or when the current page changes
   useEffect(() => {
     fetchUsers();
   }, [currentPage]);
 
+  //start _Function to fetch users from the API
   const fetchUsers = async () => {
     try {
       const token = getAuthToken();
@@ -54,12 +58,19 @@ const UsersTable = () => {
       setLoading(false);
     }
   };
+  //END _Function to fetch users from the API
 
+
+  //START _Function to open popup modal delete Users 
   const openDeleteModal = (user) => {
     setUserToDelete(user);
     setIsDeleteModalOpen(true);
   };
+  //END _Function to open popup modal delete Users 
 
+  
+
+  //START _Function to handle user deletion
   const handleDelete = async (userId) => {
     try {
       const token = getAuthToken();
@@ -71,14 +82,17 @@ const UsersTable = () => {
         }
       });
       if (response.ok) {
-        fetchUsers();
-        setIsDeleteModalOpen(false);
+        fetchUsers(); // Refresh the user list after deletion
+        setIsDeleteModalOpen(false); // Close the delete modal
       }
     } catch (error) {
       console.error('Error deleting user:', error);
     }
   };
+  //END _Function to handle user deletion
 
+  
+  //start _Function to handle user updates
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
@@ -92,14 +106,17 @@ const UsersTable = () => {
         body: JSON.stringify(formData)
       });
       if (response.ok) {
-        setIsEditModalOpen(false);
-        fetchUsers();
+        setIsEditModalOpen(false); // Close the edit modal
+        fetchUsers(); // Refresh the user list after update
       }
     } catch (error) {
       console.error('Error updating user:', error);
     }
   };
+ //END _Function to handle user updates
 
+
+  //START _Function to open popup modal edit Users 
   const openEditModal = (user) => {
     setSelectedUser(user);
     setFormData({
@@ -109,25 +126,33 @@ const UsersTable = () => {
     });
     setIsEditModalOpen(true);
   };
+  //START _Function to open popup modal edit Users 
 
-  // Filter users based on search query
+
+  //START _Function to search to users
   const filteredUsers = users.filter(user =>
     user.fullname.toLowerCase().includes(searchQuery.toLowerCase()) ||
     user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  //END _Function to search to users
 
-  // Reset search query
+  
+  //START _Function to reset search bar
   const resetSearch = () => {
     setSearchQuery('');
   };
+  //END _Function to reset search bar
 
-  // Pagination calculations
+
+  //START _Function Pagination calculations
   const totalPages = Math.ceil((filteredUsers?.length || 0) / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentUsers = filteredUsers?.slice(startIndex, endIndex) || [];
+  //END _Function Pagination calculations
 
 
+  //START _ Display loading spinner while data is being fetched*
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -135,7 +160,10 @@ const UsersTable = () => {
       </div>
     );
   }
+  //END _ Display loading spinner while data is being fetched*
 
+
+  //START _ Display error message if there's an error fetching users
   if (error) {
     return (
       <div className="p-4 text-red-500 bg-red-50 rounded-md">
@@ -143,13 +171,18 @@ const UsersTable = () => {
       </div>
     );
   }
+  //END _ Display error message if there's an error fetching users
+
 
   return (
     <div className="w-full px-4 py-8">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+
+        {/* START _ Header section */}
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-800">Users Management</h2>
-          {/* Search Bar and Reset Button */}
+
+          {/* START _ Search Bar and Reset Button */}
           <div className="mt-4 flex items-center gap-2">
             <input
               type="text"
@@ -167,11 +200,15 @@ const UsersTable = () => {
               </button>
             )}
           </div>
-        </div>
+          {/* END _ Search Bar and Reset Button  */}
 
-        {/* Table */}
+        </div>
+        {/* END _ Header section */}
+
+        {/* START _ Table */}
         <div className="overflow-x-auto">
           <table className="w-full">
+            {/* STARt _ head */}
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -188,7 +225,12 @@ const UsersTable = () => {
                 </th>
               </tr>
             </thead>
+            {/* END _ head */}
+
+            {/* START _ body */}
             <tbody className="bg-white divide-y divide-gray-200">
+
+              {/* START _ if user not found */}
               {currentUsers.length === 0 ? (
                 <tr>
                   <td colSpan="4" className="px-6 py-4 text-center text-gray-500">
@@ -196,6 +238,8 @@ const UsersTable = () => {
                   </td>
                 </tr>
               ) : (
+
+                //  START _ fetche Uesrs
                 currentUsers.map((user) => (
                   <tr key={user._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -210,27 +254,35 @@ const UsersTable = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
+
+                      {/* popup Edit model */}
                       <button
                         onClick={() => openEditModal(user)}
                         className="text-blue-600 hover:text-blue-900 mr-4"
                       >
                         <Pencil size={18} />
                       </button>
+
+                      {/* popup delet model */}
                       <button
                         onClick={() => openDeleteModal(user)}
                         className="text-red-600 hover:text-red-900"
                       >
                         <Trash2 size={18} />
                       </button>
+
                     </td>
                   </tr>
                 ))
               )}
             </tbody>
+            {/* END _ body */}
+
           </table>
         </div>
+        {/* END _ table */}
 
-        {/* Pagination */}
+        {/* START _ Pagination */}
         {filteredUsers.length > 0 && (
           <div className="px-6 py-4 flex items-center justify-between border-t border-gray-200">
             <div className="flex items-center">
@@ -255,8 +307,9 @@ const UsersTable = () => {
           </div>
         )}
       </div>
+      {/* END _ Pagination */}
 
-      {/* popup update users */}
+      {/* START _ Edit User Modal popup*/}
       <EditUserModal 
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
@@ -265,18 +318,22 @@ const UsersTable = () => {
         formData={formData}
         setFormData={setFormData}
       />
+      {/* END _ Edit User Modal popup*/}
 
-      {/* popup delete users */}
+      {/* START _ Delete Confirmation Modal popup */}
       <DeleteConfirmationModalUsers 
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={() => handleDelete(userToDelete?._id)}
         userName={userToDelete?.fullname}
       />
+      {/* END _ Delete Confirmation Modal popup */}
+
     </div>
   );
 };
 
 export default UsersTable;
+
 
 

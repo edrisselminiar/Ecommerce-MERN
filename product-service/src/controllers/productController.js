@@ -2,36 +2,8 @@ const Product = require('../models/Product');
 const multer = require('multer');
 const path = require('path');
 
-// Helper function for search queries
-// const buildSearchQuery = (searchTerm) => {
-//   return {
-//     $or: [
-//       { 'specifications.processor': { $regex: searchTerm, $options: 'i' } },
-//       { 'specifications.ram': { $regex: searchTerm, $options: 'i' } },
-//       { 'specifications.storage': { $regex: searchTerm, $options: 'i' } },
-//       { 'specifications.graphicsCard': { $regex: searchTerm, $options: 'i' } },
-//       { 'specifications.claver': { $regex: searchTerm, $options: 'i' } },
-//       { Marke: { $regex: searchTerm, $options: 'i' } },
-//       { description: { $regex: searchTerm, $options: 'i' } },
-//       { type: { $regex: searchTerm, $options: 'i' } }
-//     ]
-//   };
-// };
 
-
-
-// Helper function for price filter
-// const buildPriceFilter = (minPrice, maxPrice) => {
-//   let priceFilter = {};
-//   if (minPrice) priceFilter.$gte = Number(minPrice);
-//   if (maxPrice) priceFilter.$lte = Number(maxPrice);
-//   return Object.keys(priceFilter).length ? { price: priceFilter } : {};
-// };
-
-
-
-
-  // Configure multer storage
+// Configure multer storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'public/images/products/');
@@ -57,6 +29,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+// upload imges
 const upload = multer({ 
   storage, 
   fileFilter,
@@ -92,6 +65,8 @@ const upload = multer({
       ],
     };
   };
+
+
   // Helper function to build price filter
   const buildPriceFilter = (minPrice, maxPrice) => {
     const priceFilter = {};
@@ -111,8 +86,7 @@ const upload = multer({
 
 const productController = {
 
-  
-
+  //upload images in public/images/products 
   async uploadImage(req, res) {
     upload.single('image')(req, res, (err) => {
       if (err instanceof multer.MulterError) {
@@ -142,9 +116,6 @@ const productController = {
 
 
 
-
-
-
   // Create new product
   async createProduct(req, res) {
     try {
@@ -161,9 +132,7 @@ const productController = {
 
 
 
-
 // Get all products with optional filters
-
 async getProducts(req, res) {
   try {
     const { 
@@ -271,6 +240,7 @@ async getProducts(req, res) {
     }
   },
 
+
   // Search products
   async searchProducts(req, res) {
     try {
@@ -368,7 +338,7 @@ async getProducts(req, res) {
 
 
   
-  
+  //get Count product
   async getProductCount(req, res) {
     try {
       const count = await Product.countDocuments({});

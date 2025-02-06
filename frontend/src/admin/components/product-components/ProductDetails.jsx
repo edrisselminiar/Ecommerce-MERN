@@ -1,58 +1,60 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ProductGallery from './ProductGallery';
-
 import { 
   ArrowLeft, Package, Clock, Tag, Box, 
   Shield, Heart, Share2, Eye, Edit2
 } from 'lucide-react';
 
+// product Detils used in admin/pages/ProductsTable.jsx
 const ProductDetails = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [activeImage, setActiveImage] = useState(0);
-  const [isWishlist, setIsWishlist] = useState(false);
+  const { id } = useParams(); // Get the product ID from the URL
+  const navigate = useNavigate(); // Hook to navigate between routes
+  const [product, setProduct] = useState(null); // State to store product details
+  const [loading, setLoading] = useState(true); // State to handle loading status
+  const [error, setError] = useState(null); // State to handle errors
+  const [activeImage, setActiveImage] = useState(0); // State to track the active image in the gallery
+  const [isWishlist, setIsWishlist] = useState(false); // State to handle wishlist status
+  const [currentImageIndex, setCurrentImageIndex] = useState(0); // State to track the current image index
 
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  //console.log(id)
-
-   // Get auth token function
-   const getAuthToken = () => {
-    return localStorage.getItem('token'); // or however you store your token
+  // START _ Function to retrieve the authentication token from localStorage
+  const getAuthToken = () => {
+    return localStorage.getItem('token'); // Retrieve the token stored in localStorage
   };
+  // END _ Function to retrieve the authentication token from localStorage
 
 
+  // START _ Fetch product details when the component mounts or the ID changes
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
-        const token = getAuthToken();
+        const token = getAuthToken(); // Get the authentication token
         
-        const response = await fetch(`http://localhost:3001/api/products/${id}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
+        // Fetch product details from the server
+        const response = await fetch(`http://localhost:3001/api/products/${id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`, // Include the auth token in the headers
+            'Content-Type': 'application/json'
           }
-        );
+        });
         
+        // Handle response errors
         if (!response.ok) throw new Error('Failed to fetch product details');
-        const data = await response.json();
-        setProduct(data);
-        setLoading(false);
+        const data = await response.json(); // Parse the response data
+        setProduct(data); // Set the product data in state
+        setLoading(false); // Set loading to false
       } catch (err) {
-        setError(err.message);
-        setLoading(false);
+        setError(err.message); // Set the error message
+        setLoading(false); // Set loading to false
       }
     };
     
-    if (id) fetchProductDetails();
-  }, [id]);
-  
+    if (id) fetchProductDetails(); // Fetch product details if the ID is available
+  }, [id]); // Dependency array to re-run the effect when the ID changes
+  // END _ Fetch product details when the component mounts or the ID changes
+
+
+  // Display a loading spinner while fetching data
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -61,6 +63,7 @@ const ProductDetails = () => {
     );
   }
   
+  // Display an error message if there's an error
   if (error) {
     return (
       <div className="max-w-7xl mx-auto p-4">
@@ -71,6 +74,7 @@ const ProductDetails = () => {
     );
   }
   
+  // Display a message if the product is not found
   if (!product) {
     return (
       <div className="max-w-7xl mx-auto p-4">
@@ -81,21 +85,21 @@ const ProductDetails = () => {
     );
   }
 
-    const getImageUrl = (images) => {
-    // Ensure the image name is defined
-    if (!images) return '';
-    // return `${PRODUCT_SERVICE_URL}/images/products/${images}`;
-    return `http://localhost:3001/images/products/${images}`;
+  // STRAT _ Function to get the full URL of a product image
+  const getImageUrl = (images) => {
+    if (!images) return ''; // Return an empty string if the image is not defined
+    return `http://localhost:3001/images/products/${images}`; // Return the full image URL
   };
-
+  // END _ Function to get the full URL of a product image
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto p-4">
-        {/* Navigation Bar */}
+
+        {/* START _ Navigation Bar */}
         <div className="flex items-center justify-between mb-6">
           <button 
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(-1)} // Navigate back to the previous page
             className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
@@ -103,77 +107,44 @@ const ProductDetails = () => {
           </button>
           
           <div className="flex items-center gap-4">
+            {/* Edit Button */}
+            <button
+              onClick={() => navigate(`/dashboard/products/edit/${product._id}`)} // Navigate to the edit page
+              className="inline-flex items-center px-3 py-2 text-black hover:text-yellow-900 transition-colors"
+            >
+              <Edit2 className="w-5 h-5" />
+            </button>
 
-          <button
-            onClick={() => navigate(`/dashboard/products/edit/${product._id}`)}
-            className="inline-flex items-center px-3 py-2 text-black hover:text-yellow-900 transition-colors"
-          >
-            <Edit2 className="w-5 h-5" />
-          </button>
-
+            {/* Wishlist Button */}
             <button 
-              onClick={() => setIsWishlist(!isWishlist)}
+              onClick={() => setIsWishlist(!isWishlist)} // Toggle wishlist status
               className="p-2 rounded-full hover:bg-gray-100 transition-colors"
             >
               <Heart 
                 className={`w-6 h-6 ${isWishlist ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
               />
             </button>
+
+            {/* Share Button */}
             <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
               <Share2 className="w-6 h-6 text-gray-600" />
             </button>
           </div>
         </div>
+        {/* END _ Navigation Bar */}
 
-        {/* Main Content */}
+        {/* START _ Main Content */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-
-
-
+            {/* START _ Product Gallery */}
             <ProductGallery product={product} getImageUrl={getImageUrl} />
-            {/* Left Column - Image Gallery */}
-            {/* Left Column - Image Gallery with Fixed Paths */}
-            {/* <div className="p-6 space-y-4">
-              <div className="aspect-square rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
-                <img
-                  src={getImageUrl(product.images[activeImage])}
-                  alt={product.description}
-                  className="w-full h-full object-cover transition-transform hover:scale-105"
-                  onError={(e) => {
-                    e.target.src = '/src/assets/images/products/placeholder.png';
-                  }}
-                />
-              </div>
-              <div className="grid grid-cols-4 gap-3">
-                {product.images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setActiveImage(index)}
-                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-all
-                      ${activeImage === index 
-                        ? 'border-blue-500 shadow-md' 
-                        : 'border-gray-100 hover:border-gray-200'
-                      }`}
-                  >
-                    <img
-                      src={getImageUrl(image)}
-                      alt={`Product view ${index + 1}`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.src = '/src/assets/images/products/placeholder.png';
-                      }}
-                    />
-                  </button>
-                ))}
-              </div>
-            </div> */}
-
+            {/* END _ Product Gallery */}
         
-            {/* Right Column - Product Information */}
+            {/* START _ Product Information */}
             <div className="p-6 lg:border-l border-gray-100">
               <div className="space-y-6">
+
                 {/* Product Header */}
                 <div>
                   <div className="flex items-center gap-2 mb-2">
@@ -184,12 +155,16 @@ const ProductDetails = () => {
                     {product.description}
                   </h1>
                   <div className="flex flex-wrap gap-2">
+
+                    {/* Visibility Badge */}
                     <StatusBadge
                       icon={Eye}
                       label="Visibility"
                       value={product.hidden ? 'Hidden' : 'Visible'}
                       positive={!product.hidden}
                     />
+
+                    {/* Landing Page Badge */}
                     <StatusBadge
                       icon={Tag}
                       label="Landing Page"
@@ -260,9 +235,12 @@ const ProductDetails = () => {
                 </div>
               </div>
             </div>
+            {/* END _ Product Information */}
+
+
           </div>
 
-          {/* Footer */}
+          {/* SATRt _  Footer */}
           <div className="p-6 border-t border-gray-100 bg-gray-50">
             <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-gray-600">
               <div className="flex items-center mb-2 sm:mb-0">
@@ -275,7 +253,12 @@ const ProductDetails = () => {
               </div>
             </div>
           </div>
+          {/* SATRt _  Footer */}
+
         </div>
+        {/* END _ Main Content */}
+
+
       </div>
     </div>
   );
@@ -296,9 +279,6 @@ const StatusBadge = ({ icon: Icon, label, value, positive }) => (
 );
 
 export default ProductDetails;
-
-
-
 
 
 

@@ -20,7 +20,6 @@ export default function MainContent() {
         <Route path="/products/:id" element={<ProductDetails />} />
         <Route path="/products/edit/:id" element={<ProductEditForm />} />
         <Route path="/products/add" element={<AddProductForm />} />
-
         <Route path="/logout" element={<Logout />} />
         <Route path="/users" element={<UsersTable />} />
 

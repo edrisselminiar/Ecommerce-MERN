@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Trash2, AlertCircle } from 'lucide-react';
 
+// popup modal delete product used in admin/pages/ProductsTable.jsx 
 const DeleteConfirmationDialog = ({ productId, onDelete }) => {
   const [showModal, setShowModal] = useState(false);
 
@@ -42,6 +43,7 @@ const DeleteConfirmationDialog = ({ productId, onDelete }) => {
                 </div>
               </div>
               
+              {/* Start_ button delte or cancel */}
               <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                 <button
                   type="button"
@@ -58,6 +60,8 @@ const DeleteConfirmationDialog = ({ productId, onDelete }) => {
                   Cancel
                 </button>
               </div>
+              {/* End _ button delte or cancel */}
+
             </div>
           </div>
         </div>
@@ -69,66 +73,3 @@ const DeleteConfirmationDialog = ({ productId, onDelete }) => {
 export default DeleteConfirmationDialog;
 
 
-
-
-
-
-// import React from 'react';
-// import { X } from 'lucide-react';
-
-// const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, itemName = 'item' }) => {
-//   if (!isOpen) return null;
-
-//   return (
-//     <div className="fixed inset-0 z-50 flex items-center justify-center">
-//       {/* Backdrop */}
-//       <div 
-//         className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-//         onClick={onClose}
-//       />
-      
-//       {/* Modal */}
-//       <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md p-6 m-4">
-//         {/* Close button */}
-//         <button
-//           onClick={onClose}
-//           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-//         >
-//           <X size={20} />
-//         </button>
-
-//         {/* Content */}
-//         <div className="mt-3 text-center sm:mt-0 sm:text-left">
-//           <h3 className="text-lg font-medium leading-6 text-gray-900">
-//             Delete {itemName}
-//           </h3>
-//           <div className="mt-2">
-//             <p className="text-sm text-gray-500">
-//               Are you sure you want to delete this {itemName}? This action cannot be undone.
-//             </p>
-//           </div>
-//         </div>
-
-//         {/* Buttons */}
-//         <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-//           <button
-//             type="button"
-//             onClick={onClose}
-//             className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-//           >
-//             Cancel
-//           </button>
-//           <button
-//             type="button"
-//             onClick={onConfirm}
-//             className="inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-//           >
-//             Delete
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default DeleteConfirmationModal;

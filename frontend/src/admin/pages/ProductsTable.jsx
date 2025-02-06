@@ -9,57 +9,50 @@ import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 
 const ProductsTable = () => {
+
+//start _Variable
+
+  // State variables for managing products, loading, and error
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // searche
+  // State variables for search functionality
   const [searchTerm, setSearchTerm] = useState('');
   const [tempSearchTerm, setTempSearchTerm] = useState('');
 
+  // State variables for modal and editing
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const navigate = useNavigate();
 
+  // State variables for pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalProducts, setTotalProducts] = useState(0);
 
-  // const [priceRange, setPriceRange] = useState([0, 20000]);
-  // const [stockRange, setStockRange] = useState([0, 100]);
+  // State variables for price and stock range filters
   const [priceRange, setPriceRange] = useState([0, 20000]);
   const [displayPriceRange, setDisplayPriceRange] = useState([0, 20000]); // For visual feedback
-
   const [stockRange, setStockRange] = useState([0, 100]);
   const [displayStockRange, setDisplayStockRange] = useState([0, 100]); // For visual feedback
 
-  // Get auth token function
+  // Function to get the authentication token from local storage
   const getAuthToken = () => {
     return localStorage.getItem('token'); // or however you store your token
   };
+//END _Variable
 
+  // Fetch products from the API whenever the current page, search term, or filters change
   useEffect(() => {
     fetchProducts();
   }, [currentPage, searchTerm, priceRange, stockRange]);
 
-  // const fetchProducts = async () => {
-  //   try {
-  //     const token = getAuthToken();
-  //     const response = await fetch(
-  //       `http://localhost:3001/api/products?page=${currentPage}&limit=10${
-  //         searchTerm ? `&search=${searchTerm}` : ''
-  //       }&minPrice=${priceRange[0]}&maxPrice=${priceRange[1]}&minStock=${stockRange[0]}&maxStock=${stockRange[1]}`,
-  //       {
-  //         headers: {
-  //           'Authorization': `Bearer ${token}`,
-  //           'Content-Type': 'application/json'
-  //         }
-  //       }
-  //     );
-      
+
+  // START _ Function to fetch products from the API
   const fetchProducts = async () => {
-    setLoading(true);  // Add this line to trigger loading state
-    try {
+    setLoading(true);  // Trigger loading state
+    try { 
       const token = getAuthToken();
       const response = await fetch(
         `http://localhost:3001/api/products?page=${currentPage}&limit=10${
@@ -98,16 +91,14 @@ const ProductsTable = () => {
       if (err.message.includes('Unauthorized')) {
         navigate('/admin/login'); // Adjust the route as needed
       }
-    //}
-  } finally {
-    setLoading(false);  // Ensure loading is always false when done
-  }
-};
-  // };
+    } finally {
+      setLoading(false);  // Ensure loading is always false when done
+    }
+  };
+  // END _ Function to fetch products from the API
 
-
-
-  // Sync display ranges when actual ranges change externally
+  
+  // START _ Sync display ranges when actual ranges change externally
   useEffect(() => {
     setDisplayPriceRange(priceRange);
   }, [priceRange]);
@@ -115,8 +106,10 @@ const ProductsTable = () => {
   useEffect(() => {
     setDisplayStockRange(stockRange);
   }, [stockRange]);
+  // END _ Sync display ranges when actual ranges change externally
 
-  // Update handlers to use onAfterChange
+
+  // START _ Update handlers to use onAfterChange for price and stock range sliders
   const handlePriceChange = (value) => {
     setDisplayPriceRange(value); // Update display during drag
   };
@@ -132,31 +125,25 @@ const ProductsTable = () => {
   const handleStockChangeComplete = (value) => {
     setStockRange(value); // Final update after drag
   };
+  // END _ Update handlers to use onAfterChange for price and stock range sliders
 
 
-
-  // const handleSearch = (e) => {
-  //   setSearchTerm(e.target.value);
-  //   setCurrentPage(1); // Reset to the first page when searching
-  // };
+  // START _ Function to handle search
   const handleSearch = () => {
     setSearchTerm(tempSearchTerm);
     setCurrentPage(1); // Reset to the first page when searching
   };
+  // END _ Function to handle search
 
-  // const resetSearch = () => {
-  //   setSearchTerm(''); // Clear the search term
-  //   setCurrentPage(1); // Reset to the first page
-  // };
-
+  // START _ Function to reset search
   const resetSearch = () => {
     setTempSearchTerm(''); // Clear the temporary search term
     setSearchTerm(''); // Clear the search term
     setCurrentPage(1); // Reset to the first page
   };
+  // END _ Function to reset search
 
-
-  // Reset all filters
+  // START _ Function to reset all filters
   const resetAllFilters = () => {
     setTempSearchTerm('');
     setSearchTerm('');
@@ -164,13 +151,17 @@ const ProductsTable = () => {
     setStockRange([0, 100]);
     setCurrentPage(1);
   };
+ // END _ Function to reset all filters
 
+  // STARt _ Function to handle page change
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
     }
   };
+  // END _ Function to handle page change
 
+  // START _ Function to handle product deletion
   const handleDelete = async (id) => {
     try {
       const token = getAuthToken();
@@ -198,7 +189,9 @@ const ProductsTable = () => {
       }
     }
   };
+  // END _ Function to handle product deletion
 
+  // Display loading spinner while data is being fetched
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -207,6 +200,7 @@ const ProductsTable = () => {
     );
   }
 
+  // Display error message if there is an error
   if (error) {
     return (
       <div className="p-4 text-red-500 bg-red-50 rounded-md">
@@ -215,116 +209,16 @@ const ProductsTable = () => {
     );
   }
 
+  // Main component rendering
   return (
     <div className="p-6 bg-white rounded-lg shadow-lg">
-      {/* Header Section */}
-      {/* <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-2xl font-bold text-gray-800">Products Management</h1>
-        
-        <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-        Search Input and Reset Button 
-
-
-          <div className="relative w-full md:w-64">
-            <input
-              type="text"
-              placeholder="Search products..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              value={tempSearchTerm}
-              onChange={(e) => setTempSearchTerm(e.target.value)}
-            />
-            {tempSearchTerm && (
-              <button
-                onClick={resetSearch}
-                className="absolute right-2 top-[25%] text-red-500 hover:text-gray-700"
-              >
-                <X size={20} />
-              </button>
-            )}
-            <button
-              onClick={handleSearch}
-              className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Search  />
-            </button>
-          </div>
-
-          Add Product Button 
-          <button
-            onClick={() => navigate('/dashboard/products/add')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
-          >
-            <Plus className="w-5 h-5 mr-2" /> Add Product
-          </button>
-
-           Reset All Filters Button 
-          <button
-            onClick={resetAllFilters}
-            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center justify-center"
-          >
-            <RefreshCw className="w-5 h-5 mr-2" /> Reset Filters
-          </button>
-        </div>
-      </div>
-
-       Range Sliders 
-      <div className="mb-6 w-full bg-gray-50 ">
-
-        <div className="mb-4 w-full ml-6">
-          <label className="block text-sm font-medium text-gray-700">Price Range</label>
-          <div className=' w-6/12'>
-
-         
-
-            <Slider
-              range
-              min={0}
-              max={20000}
-              value={displayPriceRange}
-              onChange={handlePriceChange}
-              onChangeComplete={handlePriceChangeComplete} // Updated prop
-              trackStyle={[{ backgroundColor: '#3b82f6' }]}
-              handleStyle={[
-                { backgroundColor: '#3b82f6', borderColor: '#3b82f6' },
-                { backgroundColor: '#3b82f6', borderColor: '#3b82f6' }
-              ]}
-            />
-                      </div>
-          <div className="text-sm text-gray-500">
-            ${displayPriceRange[0]} - ${displayPriceRange[1]}
-          </div>
-        </div>
-
-        <div className=' w-full ml-6'>
-          <label className="block text-sm font-medium text-gray-700">Stock Range</label>
-          <div className=' w-6/12'>
-    
-
-            <Slider
-              range
-              min={0}
-              max={100}
-              value={displayStockRange}
-              onChange={handleStockChange}
-              onChangeComplete={handleStockChangeComplete} // Updated prop
-              trackStyle={[{ backgroundColor: '#3b82f6' }]}
-              handleStyle={[
-                { backgroundColor: '#3b82f6', borderColor: '#3b82f6' },
-                { backgroundColor: '#3b82f6', borderColor: '#3b82f6' }
-              ]}
-            />
-            
-          </div>
-            <div className="text-sm text-gray-500">
-              ${displayStockRange[0]} - ${displayStockRange[1]}
-            </div>
-        </div>
-
-      </div> */}
-<div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 p-6 bg-white shadow-sm rounded-lg">
+      {/* START _ Header Section */}
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 p-6 bg-white shadow-sm rounded-lg">
         <h1 className="text-3xl font-semibold text-gray-900">Products Management</h1>
         
         <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+
+          {/* START _ search bar */}
           <div className="relative flex-1 sm:max-w-md">
             <div className="relative">
               <input
@@ -334,6 +228,8 @@ const ProductsTable = () => {
                 value={tempSearchTerm}
                 onChange={(e) => setTempSearchTerm(e.target.value)}
               />
+
+              {/* START _ rest searche */}
               {tempSearchTerm && (
                 <button
                   onClick={resetSearch}
@@ -342,44 +238,56 @@ const ProductsTable = () => {
                   <X size={18} />
                 </button>
               )}
+              {/* END _ rest searche */}
+
+              {/* START _ searche submit */}
               <button
                 onClick={handleSearch}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <Search size={18} />
               </button>
+              {/* END _ searche submit */}
+
             </div>
           </div>
+          {/* END _ search bar */}
 
           <div className="flex flex-col sm:flex-row gap-4">
+
+            {/* START _ button add product  */}
             <button
               onClick={() => navigate('/dashboard/products/add')}
               className="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 text-sm font-medium text-white rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-100 transition-colors"
             >
               <Plus className="w-4 h-4 mr-2" /> Add Product
             </button>
-
+            {/* END _ button add product  */}
+   
+            {/* START _ rest all filter */}
             <button
               onClick={resetAllFilters}
               className="inline-flex items-center justify-center px-4 py-2.5 bg-gray-100 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-200 focus:ring-4 focus:ring-gray-50 transition-colors"
             >
               <RefreshCw className="w-4 h-4 mr-2" /> Reset Filters
             </button>
+            {/* END _ rest all filter */}
           </div>
+         
+
+
         </div>
       </div>
+      {/* START _ Header Section */}
 
 
-
-      {/* Range Sliders  */}
+      {/* START _ Range Sliders for Price and Stock */}
       <div className="mb-6 w-full bg-gray-50 ">
 
+        {/* START _ Range  Price*/}
         <div className="mb-4 w-full ml-6">
           <label className="block text-sm font-medium text-gray-700">Price Range</label>
           <div className=' w-6/12'>
-
-         
-
             <Slider
               range
               min={0}
@@ -393,17 +301,17 @@ const ProductsTable = () => {
                 { backgroundColor: '#3b82f6', borderColor: '#3b82f6' }
               ]}
             />
-                      </div>
+          </div>
           <div className="text-sm text-gray-500">
             ${displayPriceRange[0]} - ${displayPriceRange[1]}
           </div>
         </div>
+        {/* END _ Range  Price*/}
 
+        {/* START _ Range  Stock*/}
         <div className=' w-full ml-6'>
           <label className="block text-sm font-medium text-gray-700">Stock Range</label>
           <div className=' w-6/12'>
-    
-
             <Slider
               range
               min={0}
@@ -417,51 +325,26 @@ const ProductsTable = () => {
                 { backgroundColor: '#3b82f6', borderColor: '#3b82f6' }
               ]}
             />
-            
           </div>
-            <div className="text-sm text-gray-500">
-              ${displayStockRange[0]} - ${displayStockRange[1]}
-            </div>
+          <div className="text-sm text-gray-500">
+            ${displayStockRange[0]} - ${displayStockRange[1]}
+          </div>
         </div>
+        {/* END _ Range  Stoxk*/}
 
       </div>
+      {/* END _ Range Sliders for Price and Stock */}
 
-
-
-      {/* 
-
-
-      <div className="mt-6 p-6 bg-white shadow-sm rounded-lg">
-        <div className="max-w-xl">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
-          <Slider
-            range
-            min={0}
-            max={20000}
-            value={displayPriceRange}
-            onChange={handlePriceChange}
-            onChangeComplete={handlePriceChangeComplete}
-            className="mt-2"
-          />
-          <div className="mt-2 text-sm text-gray-500">
-            ${displayPriceRange[0]} - ${displayPriceRange[1]}
-          </div>
-        </div>
-      </div> */}
-
-
-
+      {/* START _ Products Table */}
       <div className="overflow-x-auto relative">
-
-      {loading && (
+        {loading && (
           <div className="loading-overlay mt-11">
             <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         )}
-
-
-
+     
         <table className="min-w-full bg-white rounded-lg">
+          {/* STRAT _ head */}
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
@@ -475,6 +358,9 @@ const ProductsTable = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
+          {/* END _ head */}
+
+          {/* STRAT _ body */}
           <tbody className="divide-y divide-gray-200">
             {products.map((product) => (
               <tr key={product._id} className="hover:bg-gray-50">
@@ -522,6 +408,8 @@ const ProductsTable = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex space-x-2">
+
+                    {/* see detail all into for product  */}
                     <button
                       onClick={() => navigate(`/dashboard/products/${product._id}`)} 
                       className="text-blue-600 hover:text-blue-900"
@@ -529,29 +417,32 @@ const ProductsTable = () => {
                       <Eye size={20} />
                     </button>
                    
+                    {/* go to anther fiel to edit product */}
                     <button
                       onClick={() => navigate(`/dashboard/products/edit/${product._id}`)}
                       className="inline-flex items-center px-3 py-2 text-yellow-600 hover:text-yellow-900 transition-colors"
                     >
                       <Edit2 className="w-5 h-5" />
                     </button>
+
+                    {/* popup delete product */}
                     <DeleteConfirmationDialog 
                       productId={product._id}
                       onDelete={handleDelete}
                     />
+
                   </div>
                 </td>
               </tr>
             ))}
           </tbody>
+          {/* END _ body */}
+
         </table>
       </div>
+      {/* END _ Products Table */}
 
-
-
-
-
-      {/* Pagination Controls */}
+      {/* START _ Pagination Controls */}
       <div className="mt-4 flex items-center justify-between px-4">
         <div className="text-sm text-gray-700">
           Showing {((currentPage - 1) * 10) + 1} to {Math.min(currentPage * 10, totalProducts)} of {totalProducts} products
@@ -599,9 +490,26 @@ const ProductsTable = () => {
           </button>
         </div>
       </div>
+      {/* END _ Pagination Controls */}
+
     </div>
   );
 };
 
 export default ProductsTable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

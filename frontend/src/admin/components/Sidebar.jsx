@@ -55,23 +55,27 @@ const Sidebar = () => {
 
   return (
     <div className="">
-      {/* Mobile overlay */}
+      {/* START _ Mobile overlay */}
       {isMobileOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
+      {/* END _ Mobile overlay */}
 
-      {/* Mobile menu button */}
+
+      {/* STARt _ Mobile menu button */}
       <button
         onClick={() => setIsMobileOpen(true)}
         className="fixed top-4 left-4 p-2 rounded-lg bg-white shadow-lg lg:hidden z-40"
       >
         <Menu size={24} />
       </button>
+      {/* END _ Mobile menu button */}
 
-      {/* Sidebar */}
+
+      {/* STARt _ Sidebar */}
       <aside 
         className={`
           fixed top-0 left-0 h-full bg-white shadow-xl lg:mt-6 z-40
@@ -81,7 +85,10 @@ const Sidebar = () => {
           lg:relative
         `}
       >
-        {/* Logo Section */}
+      {/* END _ Sidebar */}
+
+
+        {/* STARt _ Logo Section */}
         <div className="h-16 flex items-center justify-between px-4 border-b">
           <div className="flex items-center">
             <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
@@ -99,8 +106,10 @@ const Sidebar = () => {
             />
           </button>
         </div>
+        {/* END _ Logo Section */}
 
-        {/* Navigation Menu */}
+
+        {/* START _ Navigation Menu */}
         <nav className="p-2 space-y-1 overflow-y-auto">
           {menuItems.map((item) => (
             <div key={item.id}>
@@ -127,8 +136,10 @@ const Sidebar = () => {
             </div>
           ))}
         </nav>
+        {/* END _ Navigation Menu */}
 
-        {/* Footer Section */}
+
+        {/* START _ Footer Section */}
         <div className={`border-t p-4 ${isCollapsed ? 'text-center' : ''}`}>
           <button
             className={`
@@ -140,6 +151,8 @@ const Sidebar = () => {
             {!isCollapsed && <span className="ml-3">Logout</span>}
           </button>
         </div>
+        {/* END _ Footer Section */}
+
       </aside>
     </div>
   );

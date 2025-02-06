@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Upload, X } from 'lucide-react';
 import ImageUploadSection from "./ImageUploadSection";
 
+
+// add new product used in admin/pages/ProductsTable.jsx
 const AddProductForm = () => {
-  const navigate = useNavigate();
-  const [error, setError] = useState(null);
-  const [isDragging, setIsDragging] = useState(false);
+  const navigate = useNavigate(); // Hook to navigate between routes
+  const [error, setError] = useState(null); // State to handle form errors
+  const [isDragging, setIsDragging] = useState(false); // State to handle drag-and-drop for images
   const [formData, setFormData] = useState({
     description: '',
     type: '',
@@ -32,87 +34,98 @@ const AddProductForm = () => {
     },
   });
 
+  // Function to retrieve the authentication token from localStorage
+  const getAuthToken = () => {
+    return localStorage.getItem('token'); // Retrieve the token stored in localStorage
+  };
 
-     // Get auth token function
-     const getAuthToken = () => {
-      return localStorage.getItem('token'); // or however you store your token
-    };
-
+  // START _ Handle form submission image upload and storage
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
+    e.preventDefault(); // Prevent default form submission behavior
+    setError(null); // Reset any previous errors
 
     try {
-
+      // Validate that at least one image is upload and storage
       if (!formData.imageNames.length) {
         throw new Error('At least one image is required');
       }
-          // Handle image upload first
-          const imagePromises = formData.imageNames.map(async (image) => {
-            const timestamp = Date.now();
-            const fileName = `${timestamp}_${image.name.replace(/\s+/g, '_')}`;
-            
-            const formDataImage = new FormData();
-            formDataImage.append('image', image);
-            formDataImage.append('fileName', fileName);
-            
-            try {
-              const uploadResponse = await fetch('http://localhost:3001/api/products/upload', {
-                method: 'POST',
-                body: formDataImage,
 
-              });
-    
-              if (!uploadResponse.ok) {
-                const errorData = await uploadResponse.json();
-                throw new Error(errorData.message || `Failed to upload image ${fileName}`);
-              }
-    
-              const uploadResult = await uploadResponse.json();
-              return uploadResult.fileName || fileName;
-            } catch (uploadError) {
-              throw new Error(`Image upload failed: ${uploadError.message}`);
-            }
+      // START _ Handle image upload first
+      const imagePromises = formData.imageNames.map(async (image) => {
+        const timestamp = Date.now(); // Generate a unique timestamp for the file name
+        const fileName = `${timestamp}_${image.name.replace(/\s+/g, '_')}`; // Create a unique file name
+        
+        const formDataImage = new FormData(); // Create a new FormData object for the image
+        formDataImage.append('image', image); // Append the image file
+        formDataImage.append('fileName', fileName); // Append the file name
+        
+        try {
+          // Upload the image to the server
+          const uploadResponse = await fetch('http://localhost:3001/api/products/upload', {
+            method: 'POST',
+            body: formDataImage,
           });
 
- 
+          // Handle upload errors
+          if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json();
+            throw new Error(errorData.message || `Failed to upload image ${fileName}`);
+          }
+
+          // Return the uploaded file name
+          const uploadResult = await uploadResponse.json();
+          return uploadResult.fileName || fileName;
+        } catch (uploadError) {
+          throw new Error(`Image upload failed: ${uploadError.message}`);
+        }
+      });
+      // END _ Handle image upload first
 
       // Wait for all images to be uploaded
       const storedImages = await Promise.all(imagePromises);
 
+      // Prepare the product data to be sent to the server
       const productData = {
         ...formData,
         images: storedImages,
         imageNames: storedImages,
       };
 
+      // Retrieve the authentication token
       const token = getAuthToken();
+
+      // START _ Send the product data to the server storage in product-service/public/images/products
       const response = await fetch('http://localhost:3001/api/products', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`, // Include the auth token in the headers
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(productData),
+        body: JSON.stringify(productData), // Convert the product data to JSON
       });
+      // END _ Send the product data to the server
 
+      // Handle response errors
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to create product');
       }
-       const newProduct = await response.json();
+
+      // Navigate to the newly created product's page
+      const newProduct = await response.json();
       navigate(`/dashboard/products/${newProduct._id}`);
     } catch (err) {
-      setError(err.message);
-      console.error('Error creating product:', err);
+      setError(err.message); // Set the error message
+      console.error('Error creating product:', err); // Log the error to the console
     }
   };
+  // END _ Handle form submission image upload and storage
 
-
-  // Rest of the component remains the same...
+  // START _ Handle input changes for the form fields
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     
+    // Handle changes for nested specification fields
     if (name.includes('specifications.')) {
       const specField = name.split('.')[1];
       setFormData(prev => ({
@@ -123,63 +136,23 @@ const AddProductForm = () => {
         }
       }));
     } else {
+      // Handle changes for regular fields
       setFormData(prev => ({
         ...prev,
         [name]: type === 'checkbox' ? checked : value
       }));
     }
   };
-
-  // const handleDragEnter = (e) => {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  //   setIsDragging(true);
-  // };
-
-  // const handleDragLeave = (e) => {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  //   setIsDragging(false);
-  // };
-
-  // const handleDrop = useCallback((e) => {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  //   setIsDragging(false);
-
-  //   const files = Array.from(e.dataTransfer.files);
-  //   const validFiles = files.filter(file => file.type.startsWith('image/'));
-
-  //   setFormData(prev => ({
-  //     ...prev,
-  //     imageNames: [...prev.imageNames, ...validFiles],
-  //   }));
-  // }, []);
-
-  // const handleFileSelect = (e) => {
-  //   const files = Array.from(e.target.files);
-  //   setFormData(prev => ({
-  //     ...prev,
-  //     imageNames: [...prev.imageNames, ...files],
-  //   }));
-  // };
-
-  // const removeImage = (indexToRemove) => {
-  //   setFormData(prev => ({
-  //     ...prev,
-  //     imageNames: prev.imageNames.filter((_, index) => index !== indexToRemove),
-  //   }));
-  // };
-
+  // END _ Handle input changes for the form fields
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
-        {/* Header */}
+
+        {/* START _ Header */}
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => navigate('/dashboard/products')}
-
             className="flex items-center text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
@@ -187,84 +160,26 @@ const AddProductForm = () => {
           </button>
           <h1 className="text-2xl font-bold text-gray-900">Add New Product</h1>
         </div>
+        {/* END _ Header */}
 
+        {/* Display error message if any */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
             {error}
           </div>
         )}
 
+        {/* START _ Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-
-
-
-          <ImageUploadSection formData={formData} setFormData={setFormData} />
           {/* Image Upload Section */}
-          {/* <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold mb-4">Product Images*</h2>
-             */}
-            {/* Drag & Drop Zone */}
-            {/* <div
-              onDragEnter={handleDragEnter}
-              onDragOver={handleDragEnter}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              className={`border-2 border-dashed rounded-lg p-8 text-center ${
-                isDragging 
-                  ? 'border-blue-500 bg-blue-50' 
-                  : 'border-gray-300 hover:border-gray-400'
-              }`}
-            >
-              <Upload className="w-8 h-8 mx-auto text-gray-400 mb-4" />
-              <p className="text-sm text-gray-600 mb-2">
-                Drag and drop your images here, or
-              </p>
-              <label className="inline-block">
-                <span className="px-4 py-2 text-sm text-blue-600 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100">
-                  Browse Files
-                </span>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
-              </label>
-            </div> */}
+          <ImageUploadSection formData={formData} setFormData={setFormData} />
 
-            {/* Image Preview */}
-            {/* {formData.imageNames.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">
-                  Selected Images ({formData.imageNames.length})
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {formData.imageNames.map((image, index) => (
-                    <div key={index} className="relative group">
-                      <img
-                        src={URL.createObjectURL(image)}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute top-1 right-1 p-1 bg-white rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-4 h-4 text-gray-500" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div> */}
-
-          {/* Basic Information */}
+          {/* Basic Information Section */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-lg font-semibold mb-4">Basic Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              {/* Description */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Description*
@@ -280,6 +195,7 @@ const AddProductForm = () => {
                 />
               </div>
               
+              {/* Type */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Type*
@@ -295,6 +211,7 @@ const AddProductForm = () => {
                 />
               </div>
 
+              {/* Price */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Price*
@@ -311,6 +228,7 @@ const AddProductForm = () => {
                 />
               </div>
 
+              {/* Stock */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Stock*
@@ -327,6 +245,7 @@ const AddProductForm = () => {
               </div>
             </div>
 
+            {/* START _ Checkbox options */}
             <div className="mt-4 space-y-2">
               <div className="flex items-center">
                 <input
@@ -367,9 +286,11 @@ const AddProductForm = () => {
                 </label>
               </div>
             </div>
+            {/* END _ Checkbox options */}
+
           </div>
 
-          {/* Additional Information */}
+          {/* START _ Additional Information Section */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-lg font-semibold mb-4">Additional Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -402,8 +323,9 @@ const AddProductForm = () => {
               </div>
             </div>
           </div>
+           {/* END _ Additional Information Section */}
 
-          {/* Specifications */}
+          {/* START _ Specifications Section */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-lg font-semibold mb-4">Specifications</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -424,8 +346,9 @@ const AddProductForm = () => {
               ))}
             </div>
           </div>
+          {/* END _ Specifications Section */}
 
-          {/* Action Buttons */}
+          {/* START _ Action Buttons */}
           <div className="flex justify-end gap-4">
             <button
               type="button"
@@ -442,12 +365,18 @@ const AddProductForm = () => {
               Create Product
             </button>
           </div>
+          {/* END _ Action Buttons */}
+
         </form>
+        {/* END _ Form */}
+
       </div>
     </div>
   );
 };
 
 export default AddProductForm;
+
+
 
 
