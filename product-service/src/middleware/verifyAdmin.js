@@ -1,6 +1,6 @@
 //start_Give admin the right to some root users(get_put_delet)
 //comminicated with mecroservice adminAuth-service(routes/authRoutes.js->verify)
-
+§//uses synchronous HTTP communication (request-response)
 const axios = require('axios');
 const verifyAdmin = async (req, res, next) => {
     try {

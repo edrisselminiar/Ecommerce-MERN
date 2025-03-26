@@ -2,7 +2,7 @@ import React from 'react';
 import { Star } from 'lucide-react';
 
 
-const productImages = import.meta.glob('/src/assets/images/products/*.{png,jpg,jpeg,gif}', {
+const productImages = import.meta.glob('/src/assets/images/products/*.{png,jpg,jpeg,gif,webp}', {
   eager: true,
   query: '?url',
   import: 'default'

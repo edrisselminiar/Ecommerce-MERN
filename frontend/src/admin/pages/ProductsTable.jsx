@@ -303,7 +303,7 @@ const ProductsTable = () => {
             />
           </div>
           <div className="text-sm text-gray-500">
-            ${displayPriceRange[0]} - ${displayPriceRange[1]}
+            MAD{displayPriceRange[0]} - MAD{displayPriceRange[1]}
           </div>
         </div>
         {/* END _ Range  Price*/}
@@ -327,7 +327,7 @@ const ProductsTable = () => {
             />
           </div>
           <div className="text-sm text-gray-500">
-            ${displayStockRange[0]} - ${displayStockRange[1]}
+            {displayStockRange[0]} - {displayStockRange[1]}
           </div>
         </div>
         {/* END _ Range  Stoxk*/}
